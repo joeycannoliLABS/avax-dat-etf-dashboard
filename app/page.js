@@ -81,7 +81,7 @@ var ETFS_STATIC = [
     stakingPct: 70,
     navPerShare: 25,
     stakingMax: 70,
-    status: "S-1 Filed",
+    status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
     highlights: ["Lowest fee at 0.34% among AVAX ETFs","Staking up to 70% of holdings","12% cut of staking rewards as expenses","$2.5M seed investment (100K shares @ $25)","Coinbase Custody + BNY Mellon"],
     color: "#E84142",
