@@ -75,18 +75,18 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: null,
-    avaxHoldings: null,
+    aum: 2500000,
+    avaxHoldings: 268292,
     sponsorFee: 0.34,
-    stakingPct: null,
-    navPerShare: null,
+    stakingPct: 70,
+    navPerShare: 25,
     stakingMax: 70,
     status: "S-1 Filed",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
     highlights: ["Lowest fee at 0.34% among AVAX ETFs","Staking up to 70% of holdings","12% cut of staking rewards as expenses","$2.5M seed investment (100K shares @ $25)","Coinbase Custody + BNY Mellon"],
     color: "#E84142",
     logoImg: "/bitwise.png",
-    buyUrl: null
+    buyUrl: "https://bavaetf.com/"
   }
 ];
 
@@ -1110,4 +1110,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
