@@ -56,11 +56,11 @@ var ETFS_STATIC = [
     ticker: "GAVA",
     sponsor: "Grayscale",
     exchange: "NASDAQ",
-    aum: 5197532,
-    avaxHoldings: 597201,
-    sponsorFee: 0.50,
-    stakingPct: 86.50,
-    navPerShare: 20.96,
+    aum: 5549234,
+    avaxHoldings: 598103,
+    sponsorFee: 0,
+    stakingPct: 86.57,
+    navPerShare: 22.38,
     stakingMax: 85,
     status: "Live",
     description: "Converted from Grayscale Avalanche Trust to a spot staking ETF. Launched March 13, 2026 on NASDAQ. Allows staking up to 85% of AVAX holdings for yield generation.",
@@ -75,11 +75,11 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: 2500000,
-    avaxHoldings: 268292,
-    sponsorFee: 0.34,
+    aum: 18183372,
+    avaxHoldings: 1959900,
+    sponsorFee: 0,
     stakingPct: 70,
-    navPerShare: 25,
+    navPerShare: 24.91,
     stakingMax: 70,
     status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
@@ -516,9 +516,9 @@ function EntityCard({ e, price, circ, isOpen, onToggle }) {
 }
 
 var RWA_MANUAL = {
-  distributed: 625696878,
+  distributed: 640744983,
   represented: 678646842,
-  stablecoinMcap: 1560000000
+  stablecoinMcap: 1427000000
 };
 var RWA_WEEKLY = [
   { date: "Aug 2024", distributed: 120000000, represented: 180000000 },
@@ -540,13 +540,14 @@ var RWA_WEEKLY = [
   { date: "Dec 2025", distributed: 570000000, represented: 655000000 },
   { date: "Jan 2026", distributed: 575000000, represented: 670000000 },
   { date: "Feb 2026", distributed: 581290000, represented: 678650000 },
-  { date: "Mar 2026", distributed: 628700000, represented: 678650000 }
+  { date: "Mar 2026", distributed: 628700000, represented: 678650000 },
+  { date: "Apr 2026", distributed: 640744983, represented: 678646842 }
 ];
 
 var RWA_SUMMARY = {
   distributed: RWA_MANUAL.distributed,
   represented: RWA_MANUAL.represented,
-  rwaCount: 62,
+  rwaCount: 64,
   holders: 8036,
   stablecoinMcap: RWA_MANUAL.stablecoinMcap,
   source: "RWA.xyz",
@@ -929,12 +930,12 @@ export default function Dashboard() {
     ticker: "VAVX",
     sponsor: "VanEck",
     exchange: "NASDAQ",
-    aum: 10810000,
-    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : (price ? Math.round(11560000 / price) : null),
+    aum: 1247031,
+    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1247031,
     sponsorFee: 0.20,
     feeWaiver: null,
-    stakingPct: 83.33,
-    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 18.02,
+    stakingPct: 83.37,
+    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 19.28,
     stakingMax: 70,
     status: "Live",
     description: "First U.S.-listed spot AVAX ETF. Offers price exposure plus potential staking rewards via Coinbase Crypto Services. Launched January 26, 2026.",
