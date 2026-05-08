@@ -956,7 +956,7 @@ export default function Dashboard() {
   var ETFS = [vaneckEntry].concat(ETFS_STATIC);
 
   var totalDATAvax = datsWithLive.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
-  var totalETFAum = ETFS.reduce(function(s, e) { return s + (e.aum || 0); }, 0);
+  var totalETFValue = ETFS.reduce(function(s, e) { return s + (e.avaxHoldings && price ? e.avaxHoldings * price : 0); }, 0);
   var datPctCirc = circ ? (totalDATAvax / circ * 100).toFixed(2) : null;
   var totalRWA = RWA_MANUAL.distributed + RWA_MANUAL.represented;
 
@@ -969,7 +969,7 @@ export default function Dashboard() {
       if (d.avaxHoldings && price) text += " | " + fmt(d.avaxHoldings * price);
       text += "\n";
     });
-    text += "\nETF Total AUM: " + fmt(totalETFAum) + "\n";
+    text += "\nETF Total Value: " + fmt(totalETFValue) + "\n";
     text += "\nhttps://avax-dat-etf-dashboard.vercel.app";
     window.open("https://x.com/intent/tweet?text=" + encodeURIComponent(text), "_blank");
   }
@@ -1049,8 +1049,8 @@ export default function Dashboard() {
               <div style={{ fontSize: 32, fontWeight: 700, color: "#E84142", letterSpacing: -0.5 }}>{fmtAvax(totalDATAvax)}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF Total AUM</div>
-              <div style={{ fontSize: 32, fontWeight: 700, color: "var(--text)", letterSpacing: -0.5 }}>{fmt(totalETFAum)}</div>
+              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF Total Value</div>
+              <div style={{ fontSize: 32, fontWeight: 700, color: "var(--text)", letterSpacing: -0.5 }}>{fmt(totalETFValue)}</div>
             </div>
             <div>
               <div style={{ fontSize: 11, color: "var(--muted)" }}>RWA Total Value</div>
