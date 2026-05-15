@@ -171,6 +171,14 @@ var DAT_HISTORY = [
   { date: "May 2026", avax: 23598321, label: "Current holdings" }
 ];
 
+var ETF_HISTORY = [
+  { date: "Jan 2026", avax: 490000, label: "VAVX launches as first U.S. AVAX spot ETF" },
+  { date: "Feb 2026", avax: 820000, label: "VAVX inflows grow, GAVA and BAVA file" },
+  { date: "Mar 2026", avax: 1250000, label: "GAVA and BAVA launch" },
+  { date: "Apr 2026", avax: 3200000, label: "Rapid inflows across all three ETFs" },
+  { date: "May 2026", avax: 4842233, label: "Current combined ETF holdings" }
+];
+
 function HoldingsTimeChart({ history, currentTotal }) {
   var data = history.map(function(h) { return h; });
   if (currentTotal && data.length > 0) {
@@ -203,6 +211,89 @@ function HoldingsTimeChart({ history, currentTotal }) {
     <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>Combined DAT Holdings Over Time</h3>
+        {hovered !== null && data[hovered] && (
+          <div style={{ textAlign: "right" }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{fmtAvax(data[hovered].avax)} AVAX</span>
+            <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>{data[hovered].date}</span>
+          </div>
+        )}
+      </div>
+      <div style={{ position: "relative", height: chartH + 40, width: "100%" }}>
+        <div style={{ position: "absolute", left: 0, top: 0, height: chartH, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{fmtAvax(max)}</span>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{fmtAvax(max / 2)}</span>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>0</span>
+        </div>
+        <div ref={containerRef} style={{ marginLeft: 50, height: chartH, position: "relative" }}>
+          {[0, 0.5, 1].map(function(pct, i) {
+            return <div key={i} style={{ position: "absolute", top: pct * chartH, left: 0, right: 0, height: 1, background: "var(--border)" }} />;
+          })}
+          <svg width={chartW} height={chartH} style={{ position: "absolute", top: 0, left: 0 }}>
+            <path d={areaPath} fill="rgba(232,65,66,0.08)" />
+            <path d={linePath} fill="none" stroke="#E84142" strokeWidth="1.5" />
+            {data.map(function(d, i) {
+              var a = hovered === i;
+              return <circle key={i} cx={getX(i)} cy={getY(d.avax)} r={a ? 4 : 2.5} fill={a ? "#fff" : "#E84142"} stroke={a ? "#E84142" : "none"} strokeWidth={a ? 1.5 : 0} />;
+            })}
+          </svg>
+          {data.map(function(d, i) {
+            var left = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
+            var w = data.length > 1 ? 100 / (data.length - 1) : 100;
+            return (
+              <div key={i} style={{ position: "absolute", top: 0, left: (left - w / 2) + "%", width: w + "%", height: chartH, cursor: "pointer", zIndex: 2 }}
+                onMouseEnter={function() { setHovered(i); }} onMouseLeave={function() { setHovered(null); }}>
+                {hovered === i && <div style={{ position: "absolute", left: "50%", top: 0, width: 1, height: chartH, background: "rgba(232,65,66,0.2)", transform: "translateX(-50%)" }} />}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginLeft: 50, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[0].date}</span>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[data.length - 1].date}</span>
+        </div>
+      </div>
+      {hovered !== null && data[hovered] && (
+        <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 10, fontSize: 11, color: "var(--sub)", display: "flex", gap: 8 }}>
+          <span style={{ color: "#E84142", fontWeight: 600, flexShrink: 0 }}>{data[hovered].date}:</span>
+          <span>{data[hovered].label ? data[hovered].label + " — " : ""}{fmtAvax(data[hovered].avax)} AVAX</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ETFHoldingsTimeChart({ history, currentTotal }) {
+  var data = history.map(function(h) { return h; });
+  if (currentTotal && data.length > 0) {
+    data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
+  }
+  var max = Math.max.apply(null, data.map(function(d) { return d.avax; })) * 1.1;
+  var chartH = 180;
+  var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
+  var containerRef = useRef(null);
+  var widthS = useState(600), chartW = widthS[0], setChartW = widthS[1];
+
+  useEffect(function() {
+    function measure() {
+      if (containerRef.current) setChartW(containerRef.current.offsetWidth);
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return function() { window.removeEventListener("resize", measure); };
+  }, []);
+
+  function getX(i) { return data.length > 1 ? (i / (data.length - 1)) * chartW : chartW / 2; }
+  function getY(avax) { return max > 0 ? chartH - (avax / max) * (chartH - 20) - 10 : chartH; }
+
+  var linePath = data.map(function(d, i) {
+    return (i === 0 ? "M" : "L") + getX(i) + "," + getY(d.avax);
+  }).join(" ");
+  var areaPath = linePath + " L" + chartW + "," + chartH + " L0," + chartH + " Z";
+
+  return (
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>Combined ETF AVAX Holdings Over Time</h3>
         {hovered !== null && data[hovered] && (
           <div style={{ textAlign: "right" }}>
             <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{fmtAvax(data[hovered].avax)} AVAX</span>
@@ -1069,6 +1160,7 @@ export default function Dashboard() {
 
         <SectionHeader title="Exchange-Traded Funds" subtitle="Spot AVAX ETFs offering regulated exposure and staking rewards" />
         <ETFTable etfs={ETFS} price={price} />
+        <ETFHoldingsTimeChart history={ETF_HISTORY} currentTotal={totalETFHoldings} />
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
 
