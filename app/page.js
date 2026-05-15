@@ -56,11 +56,11 @@ var ETFS_STATIC = [
     ticker: "GAVA",
     sponsor: "Grayscale",
     exchange: "NASDAQ",
-    aum: 5905188,
+    aum: 6237460,
     avaxHoldings: 623127,
     sponsorFee: 0,
     stakingPct: 83.28,
-    navPerShare: 22.89,
+    navPerShare: 24.18,
     stakingMax: 85,
     status: "Live",
     description: "Converted from Grayscale Avalanche Trust to a spot staking ETF. Launched March 13, 2026 on NASDAQ. Allows staking up to 85% of AVAX holdings for yield generation.",
@@ -75,11 +75,11 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: 23715422,
-    avaxHoldings: 2500281,
+    aum: 25176077,
+    avaxHoldings: 2501990,
     sponsorFee: 0,
-    stakingPct: 64,
-    navPerShare: 25.50,
+    stakingPct: 63,
+    navPerShare: 27.07,
     stakingMax: 70,
     status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
@@ -166,7 +166,9 @@ var DAT_HISTORY = [
   { date: "Dec 2025", avax: 23478321, label: "Holdings steady, staking rewards accrue" },
   { date: "Jan 2026", avax: 23564321, label: "AVAX One staking rewards added" },
   { date: "Feb 2026", avax: 23564321, label: "Holdings steady" },
-  { date: "Mar 2026", avax: 23598321, label: "Current holdings" }
+  { date: "Mar 2026", avax: 23598321, label: "Holdings steady" },
+  { date: "Apr 2026", avax: 23598321, label: "Holdings steady" },
+  { date: "May 2026", avax: 23598321, label: "Current holdings" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal }) {
@@ -238,22 +240,16 @@ function HoldingsTimeChart({ history, currentTotal }) {
           })}
         </div>
         <div style={{ marginLeft: 50, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          {data.map(function(d, i) {
-            return <span key={i} style={{ fontSize: 10, color: hovered === i ? "#E84142" : "var(--dim)", fontWeight: hovered === i ? 600 : 400, textAlign: "center", flex: 1, transition: "all 0.15s" }}>{d.date}</span>;
-          })}
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[0].date}</span>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[data.length - 1].date}</span>
         </div>
       </div>
-      <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
-        {data.map(function(d, i) {
-          if (!d.label) return null;
-          return (
-            <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11, color: hovered === i ? "var(--text)" : "var(--sub)", fontWeight: hovered === i ? 600 : 400, transition: "all 0.15s" }}>
-              <span style={{ color: "#E84142", flexShrink: 0 }}>{d.date}:</span>
-              <span>{d.label} ({fmtAvax(d.avax)} AVAX)</span>
-            </div>
-          );
-        })}
-      </div>
+      {hovered !== null && data[hovered] && (
+        <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 10, fontSize: 11, color: "var(--sub)", display: "flex", gap: 8 }}>
+          <span style={{ color: "#E84142", fontWeight: 600, flexShrink: 0 }}>{data[hovered].date}:</span>
+          <span>{data[hovered].label ? data[hovered].label + " — " : ""}{fmtAvax(data[hovered].avax)} AVAX</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -319,7 +315,7 @@ function HoldingsDonutChart({ dats, price, circ }) {
 }
 
 // Approximate historical circulating supply per DAT_HISTORY period (AVAX circ ~395M–432M)
-var CIRC_APPROX = [395000000, 408000000, 418000000, 422000000, 428000000, 432000000, 433000000];
+var CIRC_APPROX = [395000000, 408000000, 418000000, 422000000, 428000000, 432000000, 433000000, 434000000, 435000000];
 
 function DATCircSupplyChart({ history, currentTotal, circ }) {
   var data = history.map(function(h) { return h; });
@@ -418,16 +414,8 @@ function DATCircSupplyChart({ history, currentTotal, circ }) {
         </div>
 
         <div style={{ marginLeft: 44, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          {pctData.map(function(d, i) {
-            return (
-              <span key={i} style={{
-                fontSize: 10,
-                color: hovered === i ? "#E84142" : "var(--dim)",
-                fontWeight: hovered === i ? 600 : 400,
-                textAlign: "center", flex: 1, transition: "all 0.15s"
-              }}>{d.date}</span>
-            );
-          })}
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{pctData[0].date}</span>
+          <span style={{ fontSize: 10, color: "var(--dim)" }}>{pctData[pctData.length - 1].date}</span>
         </div>
       </div>
 
@@ -516,9 +504,9 @@ function EntityCard({ e, price, circ, isOpen, onToggle }) {
 }
 
 var RWA_MANUAL = {
-  distributed: 808984839,
+  distributed: 720290163,
   represented: 678646842,
-  stablecoinMcap: 1510000000
+  stablecoinMcap: 1513000000
 };
 var RWA_WEEKLY = [
   { date: "Aug 2024", distributed: 120000000, represented: 180000000 },
@@ -542,7 +530,8 @@ var RWA_WEEKLY = [
   { date: "Feb 2026", distributed: 581290000, represented: 678650000 },
   { date: "Mar 2026", distributed: 628700000, represented: 678650000 },
   { date: "Apr 2026", distributed: 640744983, represented: 678646842 },
-  { date: "May 2026", distributed: 808984839, represented: 678646842 }
+  { date: "May 2026", distributed: 808984839, represented: 678646842 },
+  { date: "Jun 2026", distributed: 720290163, represented: 678646842 }
 ];
 
 var RWA_SUMMARY = {
@@ -931,12 +920,12 @@ export default function Dashboard() {
     ticker: "VAVX",
     sponsor: "VanEck",
     exchange: "NASDAQ",
-    aum: 15785088,
-    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1664496,
+    aum: 17288648,
+    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1717116,
     sponsorFee: 0.20,
     feeWaiver: null,
-    stakingPct: 87.54,
-    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 19.73,
+    stakingPct: 84.93,
+    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 20.96,
     stakingMax: 70,
     status: "Live",
     description: "First U.S.-listed spot AVAX ETF. Offers price exposure plus potential staking rewards via Coinbase Crypto Services. Launched January 26, 2026.",
