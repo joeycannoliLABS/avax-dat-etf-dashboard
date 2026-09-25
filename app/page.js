@@ -270,13 +270,75 @@ function HoldingsTimeChart({ history, currentTotal }) {
   );
 }
 
-function ETFHoldingsTimeChart({ history, currentTotal }) {
+function ETFDonutChart({ etfs, price, circ }) {
+  var list = etfs.filter(function(e) { return e.avaxHoldings; });
+  var total = list.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
+  var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
+  var colors = ["#E84142", "#8B8FA3", "#F59E0B"];
+  var size = 120, cx = size / 2, cy = size / 2, outerR = 52, innerR = 34;
+  var slices = [], angle = -90;
+  list.forEach(function(e, i) {
+    var pct = total > 0 ? (e.avaxHoldings || 0) / total : 0;
+    var sa = angle, ea = angle + pct * 360;
+    slices.push({ etf: e, pct: pct, startAngle: sa, endAngle: ea, color: colors[i % colors.length], index: i });
+    angle = ea;
+  });
+  function polarToCart(cx2, cy2, r, deg) { var rad = (deg * Math.PI) / 180; return { x: cx2 + r * Math.cos(rad), y: cy2 + r * Math.sin(rad) }; }
+  function makeArc(sd, ed, oR, iR) {
+    var s1 = polarToCart(cx, cy, oR, sd), e1 = polarToCart(cx, cy, oR, ed), s2 = polarToCart(cx, cy, iR, ed), e2 = polarToCart(cx, cy, iR, sd);
+    var lg = ed - sd > 180 ? 1 : 0;
+    return "M"+s1.x+","+s1.y+" A"+oR+","+oR+" 0 "+lg+" 1 "+e1.x+","+e1.y+" L"+s2.x+","+s2.y+" A"+iR+","+iR+" 0 "+lg+" 0 "+e2.x+","+e2.y+" Z";
+  }
+  return (
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, height: "100%" }}>
+      <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: "0 0 14px", letterSpacing: -0.3, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <span>ETF Holdings Breakdown</span>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {price && <span style={{ fontSize: 12, fontWeight: 500, color: "var(--dim)" }}>&asymp; {fmt(total * price)}</span>}
+          {circ && <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(total / circ * 100).toFixed(2)}% of supply</span>}
+        </div>
+      </h3>
+      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+          <svg width={size} height={size}>
+            {slices.map(function(s) {
+              var a = hovered === s.index, oR = a ? outerR + 3 : outerR, iR = a ? innerR - 1 : innerR;
+              return <path key={s.index} d={makeArc(s.startAngle, s.endAngle, oR, iR)} fill={s.color} style={{ opacity: hovered !== null && !a ? 0.3 : 1, transition: "all 0.15s", cursor: "pointer" }} onMouseEnter={function() { setHovered(s.index); }} onMouseLeave={function() { setHovered(null); }} />;
+            })}
+          </svg>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", textAlign: "center" }}>
+            {hovered !== null && slices[hovered] ? <div><div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{(slices[hovered].pct * 100).toFixed(1)}%</div></div>
+            : <div><div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{fmtAvax(total)}</div><div style={{ fontSize: 8, color: "var(--muted)" }}>AVAX</div></div>}
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {slices.map(function(s) {
+            var a = hovered === s.index, val = s.etf.avaxHoldings && price ? s.etf.avaxHoldings * price : null;
+            return (
+              <div key={s.index} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 6, marginBottom: 2, background: a ? "rgba(255,255,255,0.04)" : "transparent", transition: "all 0.15s", cursor: "pointer" }} onMouseEnter={function() { setHovered(s.index); }} onMouseLeave={function() { setHovered(null); }}>
+                <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0, opacity: hovered !== null && !a ? 0.3 : 1, transition: "opacity 0.15s" }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: a ? 700 : 600, color: a ? "var(--text)" : "var(--sub)", transition: "all 0.15s" }}>{s.etf.ticker} <span style={{ fontWeight: 400, color: "var(--muted)" }}>{s.etf.sponsor}</span></div>
+                  <div style={{ fontSize: 10, color: "var(--muted)" }}>{fmtAvax(s.etf.avaxHoldings)}{val ? " \u2022 " + fmt(val) : ""}</div>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: a ? s.color : "var(--text)", transition: "color 0.15s", flexShrink: 0 }}>{(s.pct * 100).toFixed(1)}%</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ETFHoldingsTimeChart({ history, currentTotal, compact }) {
   var data = history.map(function(h) { return h; });
   if (currentTotal && data.length > 0) {
     data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
   }
   var max = Math.max.apply(null, data.map(function(d) { return d.avax; })) * 1.1;
-  var chartH = 180;
+  var chartH = compact ? 120 : 180;
+  var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
   var containerRef = useRef(null);
   var widthS = useState(600), chartW = widthS[0], setChartW = widthS[1];
@@ -299,7 +361,7 @@ function ETFHoldingsTimeChart({ history, currentTotal }) {
   var areaPath = linePath + " L" + chartW + "," + chartH + " L0," + chartH + " Z";
 
   return (
-    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: 16 }}>
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: compact ? 0 : 16, height: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>Combined ETF AVAX Holdings Over Time</h3>
         {hovered !== null && data[hovered] && (
@@ -315,7 +377,7 @@ function ETFHoldingsTimeChart({ history, currentTotal }) {
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{fmtAvax(max / 2)}</span>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>0</span>
         </div>
-        <div ref={containerRef} style={{ marginLeft: 50, height: chartH, position: "relative" }}>
+        <div ref={containerRef} style={{ marginLeft: gutter, height: chartH, position: "relative" }}>
           {[0, 0.5, 1].map(function(pct, i) {
             return <div key={i} style={{ position: "absolute", top: pct * chartH, left: 0, right: 0, height: 1, background: "var(--border)" }} />;
           })}
@@ -338,7 +400,7 @@ function ETFHoldingsTimeChart({ history, currentTotal }) {
             );
           })}
         </div>
-        <div style={{ marginLeft: 50, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+        <div style={{ marginLeft: gutter, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[0].date}</span>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[data.length - 1].date}</span>
         </div>
@@ -1171,7 +1233,16 @@ export default function Dashboard() {
 
         <SectionHeader title="Exchange-Traded Funds" subtitle="Spot AVAX ETFs offering regulated exposure and staking rewards" />
         <ETFTable etfs={ETFS} price={price} />
-        <ETFHoldingsTimeChart history={ETF_HISTORY} currentTotal={totalETFHoldings} />
+
+        {/* ── ETF donut + holdings over time side by side ── */}
+        <div style={{ display: "flex", gap: 12, marginTop: 16, alignItems: "stretch", flexWrap: "wrap" }}>
+          <div style={{ flex: "0 0 auto", width: "calc(50% - 6px)", minWidth: 300 }}>
+            <ETFDonutChart etfs={ETFS} price={price} circ={circ} />
+          </div>
+          <div style={{ flex: 1, minWidth: 300 }}>
+            <ETFHoldingsTimeChart history={ETF_HISTORY} currentTotal={totalETFHoldings} compact />
+          </div>
+        </div>
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
 
