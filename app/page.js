@@ -8,7 +8,7 @@ const DATS = [
     name: "AVAX One",
     ticker: "AVX",
     exchange: "NASDAQ",
-    avaxHoldings: 14102000,
+    avaxHoldings: 14080000,
     status: "Live",
     description: "AVAX One offers investors regulated access to Avalanche, one of the fastest-growing Layer 1 blockchain ecosystems. Combining the reliability of U.S. equity markets with the upside of next-gen finance, it\u2019s a modern strategy for a new financial era.",
     highlights: ["Acquired 9.37M AVAX for $110M (Nov 2025)","$40M share buyback authorized","~$600K staking rewards earned through Dec 2025","Expects ~180K AVAX staking rewards in Q1 2026","Treasury analytics dashboard at avax-one.com"],
@@ -56,11 +56,11 @@ var ETFS_STATIC = [
     ticker: "GAVA",
     sponsor: "Grayscale",
     exchange: "NASDAQ",
-    aum: 4763343,
-    avaxHoldings: 627805,
+    aum: 7589630,
+    avaxHoldings: 725909,
     sponsorFee: 0.35,
-    stakingPct: 80.47,
-    navPerShare: 18.47,
+    stakingPct: 75.98,
+    navPerShare: 25.49,
     stakingMax: 85,
     status: "Live",
     description: "Converted from Grayscale Avalanche Trust to a spot staking ETF. Launched March 13, 2026 on NASDAQ. Allows staking up to 85% of AVAX holdings for yield generation.",
@@ -75,11 +75,11 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: 20025560,
-    avaxHoldings: 2633248,
+    aum: 27805344,
+    avaxHoldings: 2663627,
     sponsorFee: 0.34,
-    stakingPct: 60,
-    navPerShare: 21.46,
+    stakingPct: 69,
+    navPerShare: 28.01,
     stakingMax: 70,
     status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
@@ -171,7 +171,8 @@ var DAT_HISTORY = [
   { date: "May 2026", avax: 23598321, label: "Holdings steady" },
   { date: "Jun 2026", avax: 29410321, label: "AVAT treasury grows to 15M AVAX" },
   { date: "Jul 2026", avax: 29561000, label: "DeFi Tech increases to 500K AVAX" },
-  { date: "Aug 2026", avax: 29902000, label: "Current holdings" }
+  { date: "Aug 2026", avax: 29902000, label: "Holdings steady near 29.9M" },
+  { date: "Sep 2026", avax: 29880000, label: "Current holdings" }
 ];
 
 var ETF_HISTORY = [
@@ -182,7 +183,8 @@ var ETF_HISTORY = [
   { date: "May 2026", avax: 4842233, label: "Combined holdings surpass 4.8M AVAX" },
   { date: "Jun 2026", avax: 4912318, label: "Combined holdings surpass 4.9M AVAX" },
   { date: "Jul 2026", avax: 4898748, label: "Holdings steady near 4.9M AVAX" },
-  { date: "Aug 2026", avax: 5085610, label: "Current combined ETF holdings" }
+  { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
+  { date: "Sep 2026", avax: 5372052, label: "Inflows resume across all three ETFs" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal }) {
@@ -412,7 +414,7 @@ function HoldingsDonutChart({ dats, price, circ }) {
 }
 
 // Approximate historical circulating supply per DAT_HISTORY period (AVAX circ ~395M–432M)
-var CIRC_APPROX = [395000000, 408000000, 418000000, 422000000, 428000000, 432000000, 433000000, 434000000, 435000000, 436000000, 437000000, 438000000];
+var CIRC_APPROX = [395000000, 408000000, 418000000, 422000000, 428000000, 432000000, 433000000, 434000000, 435000000, 436000000, 437000000, 438000000, 439000000];
 
 function DATCircSupplyChart({ history, currentTotal, circ }) {
   var data = history.map(function(h) { return h; });
@@ -601,9 +603,9 @@ function EntityCard({ e, price, circ, isOpen, onToggle }) {
 }
 
 var RWA_MANUAL = {
-  distributed: 1684315565,
-  represented: 11404881341,
-  stablecoinMcap: 1345000000
+  distributed: 1821967032,
+  represented: 11404381325,
+  stablecoinMcap: 1364000000
 };
 var RWA_WEEKLY = [
   { date: "Aug 2024", distributed: 120000000, represented: 180000000 },
@@ -630,13 +632,14 @@ var RWA_WEEKLY = [
   { date: "May 2026", distributed: 808984839, represented: 678646842 },
   { date: "Jun 2026", distributed: 720290163, represented: 678646842 },
   { date: "Jul 2026", distributed: 1589680745, represented: 678646842 },
-  { date: "Aug 2026", distributed: 1684315565, represented: 11404881341 }
+  { date: "Aug 2026", distributed: 1684315565, represented: 11404881341 },
+  { date: "Sep 2026", distributed: 1821967032, represented: 11404381325 }
 ];
 
 var RWA_SUMMARY = {
   distributed: RWA_MANUAL.distributed,
   represented: RWA_MANUAL.represented,
-  rwaCount: 1252,
+  rwaCount: 1254,
   holders: 8036,
   stablecoinMcap: RWA_MANUAL.stablecoinMcap,
   source: "RWA.xyz",
@@ -960,7 +963,7 @@ export default function Dashboard() {
   var ss = useState(null), selected = ss[0], setSelected = ss[1];
   var us = useState(null), lastUpdate = us[0], setLastUpdate = us[1];
   var crs = useState(null), circ = crs[0], setCirc = crs[1];
-  var avxS = useState(14102000), avxHoldings = avxS[0], setAvxHoldings = avxS[1];
+  var avxS = useState(14080000), avxHoldings = avxS[0], setAvxHoldings = avxS[1];
   var darkS = useState(true), isDark = darkS[0], setIsDark = darkS[1];
   var newsS = useState([]), liveNews = newsS[0], setLiveNews = newsS[1];
   var vavxS = useState(null), vavxData = vavxS[0], setVavxData = vavxS[1];
@@ -1019,12 +1022,12 @@ export default function Dashboard() {
     ticker: "VAVX",
     sponsor: "VanEck",
     exchange: "NASDAQ",
-    aum: 13875939,
-    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1824557,
+    aum: 20691017,
+    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1982516,
     sponsorFee: 0.20,
     feeWaiver: null,
-    stakingPct: 80.22,
-    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 15.86,
+    stakingPct: 73.91,
+    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 21.78,
     stakingMax: 70,
     status: "Live",
     description: "First U.S.-listed spot AVAX ETF. Offers price exposure plus potential staking rewards via Coinbase Crypto Services. Launched January 26, 2026.",
