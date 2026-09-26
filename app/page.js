@@ -60,29 +60,29 @@ var INTL_ETPS_FALLBACK = [
     isin: "CH1135202088", inception: "2021-11-18",
     aum: 21400000, aumUsd: 21400000, aumCurrency: "USD", fee: 2.50,
     staking: true, stakingPct: null,
-    navPerShare: null, navCurrency: "USD",
-    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    navPerShare: 1.89, navCurrency: "USD",
+    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-26",
     color: "#F59E0B", url: "https://www.21shares.com/en-eu/product/avax"
   },
   {
     id: "vaneck-vava", name: "VanEck Avalanche ETN", ticker: "VAVA",
     sponsor: "VanEck", exchange: "Xetra / Euronext", domicile: "Liechtenstein",
     isin: "DE000A3GV1T7", inception: "2021-12-08",
-    aum: 11250000, aumUsd: 12150000, aumCurrency: "EUR", fee: 1.50,
-    staking: false, stakingPct: 0,
-    navPerShare: 1.41, navCurrency: "EUR", sharesOutstanding: 7980000,
-    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    aum: 10040000, aumUsd: 10040000, aumCurrency: "USD", fee: 1.50,
+    staking: false, stakingPct: null,
+    navPerShare: 1.08, navCurrency: "USD",
+    holdingsSource: "published", avaxHoldings: 958583, status: "Live", asOf: "2026-09-26",
     color: "#3B82F6", url: "https://www.vaneck.com/lu/en/investments/avalanche-etp/"
   },
   {
     id: "virtune-viravax", name: "Virtune Avalanche ETP", ticker: "VIRAVAX",
     sponsor: "Virtune", exchange: "Nasdaq Stockholm / Helsinki", domicile: "Sweden",
     isin: "SE0022050092", inception: "2024-07-04",
-    aum: 2070000, aumUsd: 2070000, aumCurrency: "USD", fee: 1.49,
-    staking: false, stakingPct: 0,
-    navPerShare: null, navCurrency: "SEK",
+    aum: 2070955, aumUsd: 2070955, aumCurrency: "USD", fee: 1.49,
+    staking: false, stakingPct: null,
+    navPerShare: 0.10, navCurrency: "USD",
     holdingsSource: "published", avaxHoldings: 201310, backing: 100.29,
-    status: "Live", asOf: "2026-09-25",
+    status: "Live", asOf: "2026-09-26",
     color: "#10B981", url: "https://www.virtune.com/en/product/avalanche"
   },
   {
@@ -90,9 +90,9 @@ var INTL_ETPS_FALLBACK = [
     sponsor: "Valour", exchange: "Nordic Growth Market", domicile: "Switzerland",
     isin: "CH1114178788", inception: "2021-09-01",
     aum: 86000, aumUsd: 86000, aumCurrency: "USD", fee: 1.90,
-    staking: false, stakingPct: 0,
-    navPerShare: null, navCurrency: "SEK",
-    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    staking: false, stakingPct: null,
+    navPerShare: 0.82, navCurrency: "EUR",
+    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-26",
     color: "#A855F7", url: "https://valour.com/en/products/valour-avalanche-avax"
   }
 ];
@@ -241,7 +241,7 @@ var ETF_HISTORY = [
   { date: "Jun 2026", avax: 4912318, label: "Combined holdings surpass 4.9M AVAX" },
   { date: "Jul 2026", avax: 4898748, label: "Holdings steady near 4.9M AVAX" },
   { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
-  { date: "Sep 2026", avax: 5372052, intl: 3336073, label: "Inflows resume; international ETPs added to tracking" }
+  { date: "Sep 2026", avax: 5372052, intl: 3162316, label: "Inflows resume; international ETPs added to tracking" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal }) {
@@ -385,16 +385,14 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
                     {p.aumCurrency !== "USD" && <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{p.aumCurrency === "EUR" ? "\u20ac" : ""}{(p.aum / 1e6).toFixed(2)}M {p.aumCurrency}{fxLive ? "" : " \u00b7 est. FX"}</div>}
                   </td>
                   <td style={tdR}>
-                    {p.staking
-                      ? (p.stakingPct != null
-                          ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.stakingPct.toFixed(1)}%</span>
-                          : <span style={{ fontSize: 10, color: "#10B981", fontWeight: 600, background: "rgba(16,185,129,0.12)", padding: "2px 7px", borderRadius: 4 }}>Staking</span>)
-                      : <span style={{ color: "var(--muted)" }}>&mdash;</span>}
+                    {p.stakingPct != null
+                      ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.stakingPct.toFixed(1)}%</span>
+                      : <span style={{ color: "var(--muted)" }}>N/A</span>}
                   </td>
                   <td style={tdR}>
                     {p.navPerShare != null
-                      ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.navCurrency === "EUR" ? "\u20ac" : "$"}{p.navPerShare.toFixed(2)}</span>
-                      : <span style={{ color: "var(--muted)" }}>&mdash;</span>}
+                      ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.navCurrency === "EUR" ? "\u20ac" : (p.navCurrency === "SEK" ? "kr" : "$")}{p.navPerShare.toFixed(2)}</span>
+                      : <span style={{ color: "var(--muted)" }}>N/A</span>}
                   </td>
                   <td style={tdR}><span style={{ color: "var(--sub)" }}>{p.fee.toFixed(2)}%</span></td>
                   <td style={tdR}>
