@@ -279,13 +279,14 @@ var ETF_HISTORY = [
   { date: "Sep 2026", avax: 5372052, intl: 3162316, label: "Inflows resume; international ETPs added to tracking" }
 ];
 
-function HoldingsTimeChart({ history, currentTotal }) {
+function HoldingsTimeChart({ history, currentTotal, compact }) {
   var data = history.map(function(h) { return h; });
   if (currentTotal && data.length > 0) {
     data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
   }
   var max = Math.max.apply(null, data.map(function(d) { return d.avax; }));
-  var chartH = 180;
+  var chartH = compact ? 258 : 180;
+  var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
   var containerRef = useRef(null);
   var widthS = useState(600), chartW = widthS[0], setChartW = widthS[1];
@@ -308,7 +309,7 @@ function HoldingsTimeChart({ history, currentTotal }) {
   var areaPath = linePath + " L" + chartW + "," + chartH + " L0," + chartH + " Z";
 
   return (
-    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginBottom: 16 }}>
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginBottom: compact ? 0 : 16, height: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
         <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>Combined DAT Holdings Over Time</h3>
         {hovered !== null && data[hovered] && (
@@ -324,7 +325,7 @@ function HoldingsTimeChart({ history, currentTotal }) {
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{fmtAvax(max / 2)}</span>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>0</span>
         </div>
-        <div ref={containerRef} style={{ marginLeft: 50, height: chartH, position: "relative" }}>
+        <div ref={containerRef} style={{ marginLeft: gutter, height: chartH, position: "relative" }}>
           {[0, 0.5, 1].map(function(pct, i) {
             return <div key={i} style={{ position: "absolute", top: pct * chartH, left: 0, right: 0, height: 1, background: "var(--border)" }} />;
           })}
@@ -347,7 +348,7 @@ function HoldingsTimeChart({ history, currentTotal }) {
             );
           })}
         </div>
-        <div style={{ marginLeft: 50, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+        <div style={{ marginLeft: gutter, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[0].date}</span>
           <span style={{ fontSize: 10, color: "var(--dim)" }}>{data[data.length - 1].date}</span>
         </div>
@@ -682,121 +683,6 @@ function HoldingsDonutChart({ dats, price, circ }) {
           })}
         </div>
       </div>
-    </div>
-  );
-}
-
-// Approximate historical circulating supply per DAT_HISTORY period (AVAX circ ~395M–432M)
-var CIRC_APPROX = [395000000, 408000000, 418000000, 422000000, 428000000, 432000000, 433000000, 434000000, 435000000, 436000000, 437000000, 438000000, 439000000];
-
-function DATCircSupplyChart({ history, currentTotal, circ }) {
-  var data = history.map(function(h) { return h; });
-  if (currentTotal && data.length > 0) {
-    data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
-  }
-
-  var liveCirc = circ || 432000000;
-  var pctData = data.map(function(d, i) {
-    var c = i === data.length - 1 ? liveCirc : (CIRC_APPROX[i] || liveCirc);
-    return { date: d.date, label: d.label, pct: d.avax > 0 ? (d.avax / c) * 100 : 0 };
-  });
-
-  var max = Math.max.apply(null, pctData.map(function(d) { return d.pct; })) * 1.15 || 10;
-  var chartH = 180;
-  var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
-  var containerRef = useRef(null);
-  var widthS = useState(400), chartW = widthS[0], setChartW = widthS[1];
-
-  useEffect(function() {
-    function measure() {
-      if (containerRef.current) setChartW(containerRef.current.offsetWidth);
-    }
-    measure();
-    window.addEventListener("resize", measure);
-    return function() { window.removeEventListener("resize", measure); };
-  }, []);
-
-  function getX(i) { return pctData.length > 1 ? (i / (pctData.length - 1)) * chartW : chartW / 2; }
-  function getY(pct) { return max > 0 ? chartH - (pct / max) * (chartH - 20) - 10 : chartH; }
-
-  var linePath = pctData.map(function(d, i) {
-    return (i === 0 ? "M" : "L") + getX(i) + "," + getY(d.pct);
-  }).join(" ");
-  var areaPath = linePath + " L" + chartW + "," + chartH + " L0," + chartH + " Z";
-
-  var currentPct = pctData.length > 0 ? pctData[pctData.length - 1].pct : 0;
-
-  return (
-    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, flex: 1, minWidth: 0 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>
-          Percent of Circulating Supply Held by DATs
-        </h3>
-        {hovered !== null && pctData[hovered] ? (
-          <div style={{ textAlign: "right" }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{pctData[hovered].pct.toFixed(2)}%</span>
-            <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>{pctData[hovered].date}</span>
-          </div>
-        ) : (
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{currentPct.toFixed(2)}%</span>
-        )}
-      </div>
-
-      <div style={{ position: "relative", height: chartH + 32, width: "100%" }}>
-        <div style={{ position: "absolute", left: 0, top: 0, height: chartH, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 10, color: "var(--dim)" }}>{max.toFixed(2)}%</span>
-          <span style={{ fontSize: 10, color: "var(--dim)" }}>{(max / 2).toFixed(2)}%</span>
-          <span style={{ fontSize: 10, color: "var(--dim)" }}>0%</span>
-        </div>
-
-        <div ref={containerRef} style={{ marginLeft: 44, height: chartH, position: "relative" }}>
-          {[0, 0.5, 1].map(function(pct, i) {
-            return <div key={i} style={{ position: "absolute", top: pct * chartH, left: 0, right: 0, height: 1, background: "var(--border)" }} />;
-          })}
-          <svg width={chartW} height={chartH} style={{ position: "absolute", top: 0, left: 0 }}>
-            <path d={areaPath} fill="rgba(232,65,66,0.08)" />
-            <path d={linePath} fill="none" stroke="#E84142" strokeWidth="1.5" />
-            {pctData.map(function(d, i) {
-              var a = hovered === i;
-              return (
-                <circle key={i}
-                  cx={getX(i)} cy={getY(d.pct)}
-                  r={a ? 4 : 2.5}
-                  fill={a ? "#fff" : "#E84142"}
-                  stroke={a ? "#E84142" : "none"}
-                  strokeWidth={a ? 1.5 : 0}
-                />
-              );
-            })}
-          </svg>
-          {pctData.map(function(d, i) {
-            var left = pctData.length > 1 ? (i / (pctData.length - 1)) * 100 : 50;
-            var w = pctData.length > 1 ? 100 / (pctData.length - 1) : 100;
-            return (
-              <div key={i}
-                style={{ position: "absolute", top: 0, left: (left - w / 2) + "%", width: w + "%", height: chartH, cursor: "pointer", zIndex: 2 }}
-                onMouseEnter={function() { setHovered(i); }}
-                onMouseLeave={function() { setHovered(null); }}>
-                {hovered === i && (
-                  <div style={{ position: "absolute", left: "50%", top: 0, width: 1, height: chartH, background: "rgba(232,65,66,0.2)", transform: "translateX(-50%)" }} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{ marginLeft: 44, display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          <span style={{ fontSize: 10, color: "var(--dim)" }}>{pctData[0].date}</span>
-          <span style={{ fontSize: 10, color: "var(--dim)" }}>{pctData[pctData.length - 1].date}</span>
-        </div>
-      </div>
-
-      {hovered !== null && pctData[hovered] && pctData[hovered].label && (
-        <div style={{ marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 10, fontSize: 11, color: "var(--sub)", display: "flex", gap: 8 }}>
-          <span style={{ color: "#E84142", flexShrink: 0 }}>{pctData[hovered].date}:</span>
-          <span>{pctData[hovered].label}</span>
-        </div>
-      )}
     </div>
   );
 }
@@ -1454,15 +1340,15 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* ── Donut + % Circ Supply chart side by side ── */}
+        {/* ── Donut + holdings over time side by side ── */}
         <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "stretch", flexWrap: "wrap" }}>
           <div style={{ flex: "0 0 auto", width: "calc(50% - 6px)", minWidth: 300 }}>
             <HoldingsDonutChart dats={datsWithLive} price={price} circ={circ} />
           </div>
-          <DATCircSupplyChart history={DAT_HISTORY} currentTotal={totalDATAvax} circ={circ} />
+          <div style={{ flex: 1, minWidth: 300 }}>
+            <HoldingsTimeChart history={DAT_HISTORY} currentTotal={totalDATAvax} compact />
+          </div>
         </div>
-
-        <HoldingsTimeChart history={DAT_HISTORY} currentTotal={totalDATAvax} />
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
 
