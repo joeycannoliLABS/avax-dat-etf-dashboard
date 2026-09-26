@@ -49,6 +49,63 @@ const DATS = [
   }
 ];
 
+// International (non-US) Avalanche ETPs / ETNs.
+// Fallback mirror of /api/intl-etps. `holdingsSource` distinguishes published
+// token counts from estimates derived as AUM / live AVAX price.
+// staking: true w/ stakingPct null = stakes but does not disclose the ratio.
+var INTL_ETPS_FALLBACK = [
+  {
+    id: "21shares-avax", name: "21Shares Avalanche Staking ETP", ticker: "AVAX",
+    sponsor: "21Shares", exchange: "SIX / Xetra / Euronext", domicile: "Switzerland",
+    isin: "CH1135202088", inception: "2021-11-18",
+    aum: 21400000, aumUsd: 21400000, aumCurrency: "USD", fee: 2.50,
+    staking: true, stakingPct: null,
+    navPerShare: null, navCurrency: "USD",
+    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    color: "#F59E0B", url: "https://www.21shares.com/en-eu/product/avax"
+  },
+  {
+    id: "vaneck-vava", name: "VanEck Avalanche ETN", ticker: "VAVA",
+    sponsor: "VanEck", exchange: "Xetra / Euronext", domicile: "Liechtenstein",
+    isin: "DE000A3GV1T7", inception: "2021-12-08",
+    aum: 11250000, aumUsd: 12150000, aumCurrency: "EUR", fee: 1.50,
+    staking: false, stakingPct: 0,
+    navPerShare: 1.41, navCurrency: "EUR", sharesOutstanding: 7980000,
+    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    color: "#3B82F6", url: "https://www.vaneck.com/lu/en/investments/avalanche-etp/"
+  },
+  {
+    id: "virtune-viravax", name: "Virtune Avalanche ETP", ticker: "VIRAVAX",
+    sponsor: "Virtune", exchange: "Nasdaq Stockholm / Helsinki", domicile: "Sweden",
+    isin: "SE0022050092", inception: "2024-07-04",
+    aum: 2070000, aumUsd: 2070000, aumCurrency: "USD", fee: 1.49,
+    staking: false, stakingPct: 0,
+    navPerShare: null, navCurrency: "SEK",
+    holdingsSource: "published", avaxHoldings: 201310, backing: 100.29,
+    status: "Live", asOf: "2026-09-25",
+    color: "#10B981", url: "https://www.virtune.com/en/product/avalanche"
+  },
+  {
+    id: "valour-avax", name: "Valour Avalanche", ticker: "AVAX",
+    sponsor: "Valour / DeFi Technologies", exchange: "Nordic Growth Market", domicile: "Switzerland",
+    isin: "CH1114178788", inception: "2021-09-01",
+    aum: 86000, aumUsd: 86000, aumCurrency: "USD", fee: 1.90,
+    staking: false, stakingPct: 0,
+    navPerShare: null, navCurrency: "SEK",
+    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-25",
+    color: "#A855F7", url: "https://valour.com/en/products/valour-avalanche-avax"
+  }
+];
+
+// Resolve token counts: published figures win, otherwise derive from AUM / live price.
+function resolveIntlHoldings(etps, price) {
+  return (etps || []).map(function(p) {
+    var derived = p.holdingsSource !== "published" && p.aumUsd && price ? p.aumUsd / price : null;
+    var holdings = p.holdingsSource === "published" ? p.avaxHoldings : derived;
+    return Object.assign({}, p, { holdings: holdings, isDerived: p.holdingsSource !== "published" });
+  });
+}
+
 var ETFS_STATIC = [
   {
     id: "grayscale-avax",
@@ -184,7 +241,7 @@ var ETF_HISTORY = [
   { date: "Jun 2026", avax: 4912318, label: "Combined holdings surpass 4.9M AVAX" },
   { date: "Jul 2026", avax: 4898748, label: "Holdings steady near 4.9M AVAX" },
   { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
-  { date: "Sep 2026", avax: 5372052, label: "Inflows resume across all three ETFs" }
+  { date: "Sep 2026", avax: 5372052, intl: 3336073, label: "Inflows resume; international ETPs added to tracking" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal }) {
@@ -270,17 +327,110 @@ function HoldingsTimeChart({ history, currentTotal }) {
   );
 }
 
+function IntlETPTable({ rows, price, circ, fxLive }) {
+  var totalAum = rows.reduce(function(s2, p) { return s2 + (p.aumUsd || 0); }, 0);
+  var totalHold = rows.reduce(function(s2, p) { return s2 + (p.holdings || 0); }, 0);
+  var totalVal = totalHold && price ? totalHold * price : null;
+
+  var th = { textAlign: "left", padding: "10px 12px", fontSize: 11, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid var(--border)", whiteSpace: "nowrap" };
+  var thR = Object.assign({}, th, { textAlign: "right" });
+  var td = { padding: "12px", fontSize: 13, borderBottom: "1px solid var(--border)", verticalAlign: "middle" };
+  var tdR = Object.assign({}, td, { textAlign: "right", whiteSpace: "nowrap" });
+
+  return (
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: 16 }}>
+      <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: "0 0 4px", letterSpacing: -0.3, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <span>International ETPs &amp; ETNs</span>
+        {circ && totalHold ? <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(totalHold / circ * 100).toFixed(2)}% of supply</span> : null}
+      </h3>
+      <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 14px" }}>Non-U.S. listed Avalanche products on European and Nordic exchanges</p>
+
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
+          <thead>
+            <tr>
+              <th style={th}>Ticker</th>
+              <th style={th}>Name</th>
+              <th style={th}>Sponsor</th>
+              <th style={thR}>AVAX Holdings</th>
+              <th style={thR}>USD Value</th>
+              <th style={thR}>AUM</th>
+              <th style={thR}>Staking %</th>
+              <th style={thR}>NAV/Share</th>
+              <th style={thR}>Expense Ratio</th>
+              <th style={thR}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(function(p) {
+              var val = p.holdings && price ? p.holdings * price : null;
+              return (
+                <tr key={p.id}>
+                  <td style={td}><span style={{ fontWeight: 700, color: "var(--text)" }}>{p.ticker}</span></td>
+                  <td style={td}>
+                    <div style={{ color: "var(--sub)" }}>{p.name}</div>
+                    <div style={{ fontSize: 10, color: "var(--muted)", marginTop: 2 }}>{p.exchange}</div>
+                  </td>
+                  <td style={td}><span style={{ fontSize: 12, color: "var(--muted)" }}>{p.sponsor}</span></td>
+                  <td style={tdR}>
+                    <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.holdings ? fmtAvax(p.holdings) + " AVAX" : "\u2014"}</span>
+                    <div style={{ fontSize: 9, color: p.isDerived ? "#F59E0B" : "#10B981", marginTop: 2 }}>
+                      {p.isDerived ? "est. from AUM" : (p.backing ? p.backing.toFixed(2) + "% backed" : "published")}
+                    </div>
+                  </td>
+                  <td style={tdR}><span style={{ color: "var(--text)", fontWeight: 500 }}>{val ? fmt(val) : "\u2014"}</span></td>
+                  <td style={tdR}>
+                    <span style={{ color: "var(--text)", fontWeight: 500 }}>{fmt(p.aumUsd)}</span>
+                    {p.aumCurrency !== "USD" && <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{p.aumCurrency === "EUR" ? "\u20ac" : ""}{(p.aum / 1e6).toFixed(2)}M {p.aumCurrency}{fxLive ? "" : " \u00b7 est. FX"}</div>}
+                  </td>
+                  <td style={tdR}>
+                    {p.staking
+                      ? (p.stakingPct != null
+                          ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.stakingPct.toFixed(1)}%</span>
+                          : <span style={{ fontSize: 10, color: "#10B981", fontWeight: 600, background: "rgba(16,185,129,0.12)", padding: "2px 7px", borderRadius: 4 }}>Staking</span>)
+                      : <span style={{ color: "var(--muted)" }}>&mdash;</span>}
+                  </td>
+                  <td style={tdR}>
+                    {p.navPerShare != null
+                      ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.navCurrency === "EUR" ? "\u20ac" : "$"}{p.navPerShare.toFixed(2)}</span>
+                      : <span style={{ color: "var(--muted)" }}>&mdash;</span>}
+                  </td>
+                  <td style={tdR}><span style={{ color: "var(--sub)" }}>{p.fee.toFixed(2)}%</span></td>
+                  <td style={tdR}>
+                    <span style={{ fontSize: 11, color: "#10B981", fontWeight: 600, border: "1px solid rgba(16,185,129,0.4)", padding: "2px 10px", borderRadius: 12 }}>{p.status}</span>
+                  </td>
+                </tr>
+              );
+            })}
+            <tr>
+              <td style={Object.assign({}, td, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })} colSpan={3}>Total</td>
+              <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{totalHold ? fmtAvax(totalHold) + " AVAX" : "\u2014"}</td>
+              <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{totalVal ? fmt(totalVal) : "\u2014"}</td>
+              <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{fmt(totalAum)}</td>
+              <td style={Object.assign({}, tdR, { borderBottom: "none" })} colSpan={4}></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p style={{ fontSize: 11, color: "var(--muted)", margin: "12px 0 0", lineHeight: 1.5 }}>
+        <span style={{ color: "#F59E0B" }}>&#9679;</span> These issuers do not publish AVAX token counts. Those figures are estimated as AUM divided by the live AVAX price and move with price. Virtune&apos;s holdings are actual custody balances verified on-chain via Chainlink Proof of Reserve.
+      </p>
+    </div>
+  );
+}
+
 function ETFDonutChart({ etfs, price, circ }) {
   var list = etfs.filter(function(e) { return e.avaxHoldings; });
   var total = list.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
-  var colors = ["#E84142", "#8B8FA3", "#F59E0B"];
+  var colors = ["#E84142", "#8B8FA3", "#6366F1", "#F59E0B", "#3B82F6", "#10B981", "#A855F7"];
   var size = 120, cx = size / 2, cy = size / 2, outerR = 52, innerR = 34;
   var slices = [], angle = -90;
   list.forEach(function(e, i) {
     var pct = total > 0 ? (e.avaxHoldings || 0) / total : 0;
     var sa = angle, ea = angle + pct * 360;
-    slices.push({ etf: e, pct: pct, startAngle: sa, endAngle: ea, color: colors[i % colors.length], index: i });
+    slices.push({ etf: e, pct: pct, startAngle: sa, endAngle: ea, color: e.color || colors[i % colors.length], index: i });
     angle = ea;
   });
   function polarToCart(cx2, cy2, r, deg) { var rad = (deg * Math.PI) / 180; return { x: cx2 + r * Math.cos(rad), y: cy2 + r * Math.sin(rad) }; }
@@ -292,7 +442,7 @@ function ETFDonutChart({ etfs, price, circ }) {
   return (
     <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, height: "100%" }}>
       <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: "0 0 14px", letterSpacing: -0.3, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <span>ETF Holdings Breakdown</span>
+        <span>ETF Holdings Breakdown <span style={{ fontSize: 10, fontWeight: 400, color: "var(--muted)" }}>Global</span></span>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {price && <span style={{ fontSize: 12, fontWeight: 500, color: "var(--dim)" }}>&asymp; {fmt(total * price)}</span>}
           {circ && <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(total / circ * 100).toFixed(2)}% of supply</span>}
@@ -318,7 +468,7 @@ function ETFDonutChart({ etfs, price, circ }) {
               <div key={s.index} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", borderRadius: 6, marginBottom: 2, background: a ? "rgba(255,255,255,0.04)" : "transparent", transition: "all 0.15s", cursor: "pointer" }} onMouseEnter={function() { setHovered(s.index); }} onMouseLeave={function() { setHovered(null); }}>
                 <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0, opacity: hovered !== null && !a ? 0.3 : 1, transition: "opacity 0.15s" }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: a ? 700 : 600, color: a ? "var(--text)" : "var(--sub)", transition: "all 0.15s" }}>{s.etf.ticker} <span style={{ fontWeight: 400, color: "var(--muted)" }}>{s.etf.sponsor}</span></div>
+                  <div style={{ fontSize: 12, fontWeight: a ? 700 : 600, color: a ? "var(--text)" : "var(--sub)", transition: "all 0.15s" }}>{s.etf.ticker} <span style={{ fontWeight: 400, color: "var(--muted)" }}>{s.etf.sponsor}</span>{s.etf.intl ? <span style={{ fontSize: 8, color: "var(--muted)", border: "1px solid var(--border)", padding: "0 4px", borderRadius: 3, marginLeft: 5 }}>INTL</span> : null}</div>
                   <div style={{ fontSize: 10, color: "var(--muted)" }}>{fmtAvax(s.etf.avaxHoldings)}{val ? " \u2022 " + fmt(val) : ""}</div>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: a ? s.color : "var(--text)", transition: "color 0.15s", flexShrink: 0 }}>{(s.pct * 100).toFixed(1)}%</div>
@@ -331,12 +481,15 @@ function ETFDonutChart({ etfs, price, circ }) {
   );
 }
 
-function ETFHoldingsTimeChart({ history, currentTotal, compact }) {
+function ETFHoldingsTimeChart({ history, currentTotal, currentIntl, compact }) {
   var data = history.map(function(h) { return h; });
-  if (currentTotal && data.length > 0) {
-    data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
+  if (data.length > 0 && (currentTotal || currentIntl)) {
+    var patch = {};
+    if (currentTotal) patch.avax = currentTotal;           // U.S. series
+    if (currentIntl) patch.intl = currentIntl;             // international overlay
+    data[data.length - 1] = Object.assign({}, data[data.length - 1], patch);
   }
-  var max = Math.max.apply(null, data.map(function(d) { return d.avax; })) * 1.1;
+  var max = Math.max.apply(null, data.map(function(d) { return d.avax + (d.intl || 0); })) * 1.1;
   var chartH = compact ? 120 : 180;
   var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
@@ -360,13 +513,21 @@ function ETFHoldingsTimeChart({ history, currentTotal, compact }) {
   }).join(" ");
   var areaPath = linePath + " L" + chartW + "," + chartH + " L0," + chartH + " Z";
 
+  // Global series (U.S. + international). International history is not backfilled,
+  // so this line is drawn only across snapshots that actually carry intl data.
+  var gIdx = [];
+  data.forEach(function(d, i) { if (d.intl) gIdx.push(i); });
+  var globalPath = gIdx.map(function(i, n) {
+    return (n === 0 ? "M" : "L") + getX(i) + "," + getY(data[i].avax + data[i].intl);
+  }).join(" ");
+
   return (
     <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: compact ? 0 : 16, height: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>Combined ETF AVAX Holdings Over Time</h3>
+        <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: 0, letterSpacing: -0.3 }}>ETF AVAX Holdings Over Time</h3>
         {hovered !== null && data[hovered] && (
           <div style={{ textAlign: "right" }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{fmtAvax(data[hovered].avax)} AVAX</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#E84142" }}>{fmtAvax(data[hovered].avax)} U.S.{data[hovered].intl ? " \u00b7 " + fmtAvax(data[hovered].avax + data[hovered].intl) + " global" : ""} AVAX</span>
             <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>{data[hovered].date}</span>
           </div>
         )}
@@ -384,6 +545,10 @@ function ETFHoldingsTimeChart({ history, currentTotal, compact }) {
           <svg width={chartW} height={chartH} style={{ position: "absolute", top: 0, left: 0 }}>
             <path d={areaPath} fill="rgba(232,65,66,0.08)" />
             <path d={linePath} fill="none" stroke="#E84142" strokeWidth="1.5" />
+            {gIdx.length > 1 && <path d={globalPath} fill="none" stroke="#6366F1" strokeWidth="1.5" strokeDasharray="4 3" />}
+            {gIdx.map(function(i) {
+              return <circle key={"g" + i} cx={getX(i)} cy={getY(data[i].avax + data[i].intl)} r={3.5} fill="#6366F1" />;
+            })}
             {data.map(function(d, i) {
               var a = hovered === i;
               return <circle key={i} cx={getX(i)} cy={getY(d.avax)} r={a ? 4 : 2.5} fill={a ? "#fff" : "#E84142"} stroke={a ? "#E84142" : "none"} strokeWidth={a ? 1.5 : 0} />;
@@ -1030,6 +1195,7 @@ export default function Dashboard() {
   var newsS = useState([]), liveNews = newsS[0], setLiveNews = newsS[1];
   var vavxS = useState(null), vavxData = vavxS[0], setVavxData = vavxS[1];
   var rwaS = useState(null), rwaLive = rwaS[0], setRwaLive = rwaS[1];
+  var intlS = useState(null), intlLive = intlS[0], setIntlLive = intlS[1];
   var dashRef = useRef(null);
 
   useEffect(function() {
@@ -1064,6 +1230,7 @@ export default function Dashboard() {
   useEffect(function() {
     function fetchRwa() {
       fetch("/api/avax-rwa").then(function(r) { return r.json(); }).then(function(d) { setRwaLive(d); }).catch(function() {});
+      fetch("/api/intl-etps").then(function(r) { return r.json(); }).then(function(d) { if (d && d.products) setIntlLive(d); }).catch(function() {});
     }
     fetchRwa();
     var i = setInterval(fetchRwa, 30 * 60 * 1000);
@@ -1109,7 +1276,17 @@ export default function Dashboard() {
   var ETFS = [vaneckEntry].concat(ETFS_STATIC);
 
   var totalDATAvax = datsWithLive.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
-  var totalETFHoldings = ETFS.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
+  var totalUSETFHoldings = ETFS.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
+  var intlEtpsRaw = intlLive && intlLive.products ? intlLive.products : INTL_ETPS_FALLBACK;
+  var intlEtps = resolveIntlHoldings(intlEtpsRaw, price);
+  var totalIntlHoldings = intlEtps.reduce(function(s, p2) { return s + (p2.holdings || 0); }, 0);
+  // Banner + donut + chart all report the global figure (U.S. + international).
+  var totalETFHoldings = totalUSETFHoldings + totalIntlHoldings;
+  var donutEtfs = ETFS.filter(function(e) { return e.avaxHoldings; })
+    .map(function(e) { return { ticker: e.ticker, sponsor: e.sponsor, avaxHoldings: e.avaxHoldings, color: null, intl: false }; })
+    .concat(intlEtps.filter(function(p2) { return p2.holdings; }).map(function(p2) {
+      return { ticker: p2.ticker, sponsor: p2.sponsor, avaxHoldings: p2.holdings, color: p2.color, intl: true };
+    }));
   var datPctCirc = circ ? (totalDATAvax / circ * 100).toFixed(2) : null;
   var totalRWA = RWA_MANUAL.distributed + RWA_MANUAL.represented;
 
@@ -1122,7 +1299,8 @@ export default function Dashboard() {
       if (d.avaxHoldings && price) text += " | " + fmt(d.avaxHoldings * price);
       text += "\n";
     });
-    text += "\nETF AVAX Holdings: " + fmtAvax(totalETFHoldings) + "\n";
+    text += "\nETF AVAX Holdings (global): " + fmtAvax(totalETFHoldings) + "\n";
+    text += "  U.S.: " + fmtAvax(totalUSETFHoldings) + " | Intl: " + fmtAvax(totalIntlHoldings) + "\n";
     text += "\nhttps://avax-dat-etf-dashboard.vercel.app";
     window.open("https://x.com/intent/tweet?text=" + encodeURIComponent(text), "_blank");
   }
@@ -1202,7 +1380,7 @@ export default function Dashboard() {
               <div style={{ fontSize: 32, fontWeight: 700, color: "#E84142", letterSpacing: -0.5 }}>{fmtAvax(totalDATAvax)}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF AVAX Holdings</div>
+              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF AVAX Holdings <span style={{ fontSize: 9, opacity: 0.7 }}>GLOBAL</span></div>
               <div style={{ fontSize: 32, fontWeight: 700, color: "#E84142", letterSpacing: -0.5 }}>{fmtAvax(totalETFHoldings)}</div>
             </div>
             <div>
@@ -1237,12 +1415,19 @@ export default function Dashboard() {
         {/* ── ETF donut + holdings over time side by side ── */}
         <div style={{ display: "flex", gap: 12, marginTop: 16, alignItems: "stretch", flexWrap: "wrap" }}>
           <div style={{ flex: "0 0 auto", width: "calc(50% - 6px)", minWidth: 300 }}>
-            <ETFDonutChart etfs={ETFS} price={price} circ={circ} />
+            <ETFDonutChart etfs={donutEtfs} price={price} circ={circ} />
           </div>
           <div style={{ flex: 1, minWidth: 300 }}>
-            <ETFHoldingsTimeChart history={ETF_HISTORY} currentTotal={totalETFHoldings} compact />
+            <ETFHoldingsTimeChart history={ETF_HISTORY} currentTotal={totalUSETFHoldings} currentIntl={totalIntlHoldings} compact />
           </div>
         </div>
+
+        <IntlETPTable
+          rows={intlEtps}
+          price={price}
+          circ={circ}
+          fxLive={intlLive ? intlLive.eurUsdLive : false}
+        />
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
 
