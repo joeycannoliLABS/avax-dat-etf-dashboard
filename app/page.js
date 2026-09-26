@@ -1404,7 +1404,7 @@ export default function Dashboard() {
 
         <div style={{ height: 24 }} />
 
-        <SectionHeader title="Exchange-Traded Products (International)" subtitle="Non-U.S. listed Avalanche ETPs and ETNs on European and Nordic exchanges" />
+        <SectionHeader title="Exchange-Traded Products (International)" subtitle="Non-U.S. listed Avalanche ETPs and ETNs" />
         <IntlETPTable
           rows={intlEtps}
           price={price}
