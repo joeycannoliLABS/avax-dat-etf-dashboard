@@ -375,12 +375,12 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
   var tdR = Object.assign({}, td, { textAlign: "right", whiteSpace: "nowrap" });
 
   return (
-    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, marginTop: 16 }}>
-      <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: "0 0 4px", letterSpacing: -0.3, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <span>International ETPs &amp; ETNs</span>
-        {circ && totalHold ? <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(totalHold / circ * 100).toFixed(2)}% of supply</span> : null}
-      </h3>
-      <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 14px" }}>Non-U.S. listed Avalanche products on European and Nordic exchanges</p>
+    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20 }}>
+      {circ && totalHold ? (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(totalHold / circ * 100).toFixed(2)}% of supply</span>
+        </div>
+      ) : null}
 
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
@@ -1366,6 +1366,9 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
+
+        <SectionHeader title="Exchange-Traded Products (International)" subtitle="Non-U.S. listed Avalanche ETPs and ETNs on European and Nordic exchanges" />
         <IntlETPTable
           rows={intlEtps}
           price={price}
