@@ -97,6 +97,41 @@ var INTL_ETPS_FALLBACK = [
   }
 ];
 
+// Merge live API data over the local baseline.
+//
+// The local table above is AUTHORITATIVE for identity and disclosed figures
+// (name, ticker, sponsor, exchange, fee, NAV, staking, links, colors). The API
+// may only contribute genuinely live values: Virtune's on-chain reserve balance
+// and FX-converted AUM. This prevents a stale deployment of /api/intl-etps from
+// rewriting product names or overriding figures entered here.
+var INTL_LIVE_FIELDS = ["aum", "aumUsd", "aumCurrency", "fxRate"];
+
+function mergeIntlEtps(liveProducts) {
+  var byId = {};
+  (liveProducts || []).forEach(function(lp) { if (lp && lp.id) byId[lp.id] = lp; });
+
+  return INTL_ETPS_FALLBACK.map(function(base) {
+    var live = byId[base.id];
+    if (!live) return Object.assign({}, base);
+    var merged = Object.assign({}, base);
+
+    // Only accept live values that are actually present and numeric.
+    INTL_LIVE_FIELDS.forEach(function(f) {
+      if (typeof live[f] === "number" && live[f] > 0) merged[f] = live[f];
+      else if (f === "aumCurrency" && live[f]) merged[f] = live[f];
+    });
+
+    // Virtune: a verified on-chain reserve reading supersedes the stored count.
+    if (live.holdingsSource === "published" && typeof live.avaxHoldings === "number" && live.avaxHoldings > 0) {
+      merged.avaxHoldings = live.avaxHoldings;
+      merged.holdingsSource = "published";
+      if (typeof live.backing === "number") merged.backing = live.backing;
+      if (live.asOf) merged.asOf = live.asOf;
+    }
+    return merged;
+  });
+}
+
 // Resolve token counts: published figures win, otherwise derive from AUM / live price.
 function resolveIntlHoldings(etps, price) {
   return (etps || []).map(function(p) {
@@ -1288,7 +1323,8 @@ export default function Dashboard() {
 
   var totalDATAvax = datsWithLive.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
   var totalUSETFHoldings = ETFS.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
-  var intlEtpsRaw = intlLive && intlLive.products ? intlLive.products : INTL_ETPS_FALLBACK;
+  // Local baseline wins on identity; API may only supply live AUM / reserves.
+  var intlEtpsRaw = mergeIntlEtps(intlLive && intlLive.products ? intlLive.products : null);
   var intlEtps = resolveIntlHoldings(intlEtpsRaw, price);
   var totalIntlHoldings = intlEtps.reduce(function(s, p2) { return s + (p2.holdings || 0); }, 0);
   // Banner + donut + chart all report the global figure (U.S. + international).
