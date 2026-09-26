@@ -1366,7 +1366,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
+        <div style={{ height: 24 }} />
 
         <SectionHeader title="Exchange-Traded Products (International)" subtitle="Non-U.S. listed Avalanche ETPs and ETNs on European and Nordic exchanges" />
         <IntlETPTable
