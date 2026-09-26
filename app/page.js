@@ -1108,6 +1108,9 @@ function ETFTable({ etfs, price }) {
   var hovS = useState(null), hovered = hovS[0], setHovered = hovS[1];
   var expS = useState(null), expanded = expS[0], setExpanded = expS[1];
   var colCount = 11;
+  var totHold = etfs.reduce(function(a, e) { return a + (e.avaxHoldings || 0); }, 0);
+  var totAum = etfs.reduce(function(a, e) { return a + (e.aum || 0); }, 0);
+  var totVal = totHold && price ? totHold * price : null;
   var thStyle = { padding: "12px 10px", textAlign: "left", color: "var(--muted)", fontWeight: 500, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5, whiteSpace: "nowrap" };
   var thStyleR = Object.assign({}, thStyle, { textAlign: "right" });
 
@@ -1219,6 +1222,13 @@ function ETFTable({ etfs, price }) {
                 )
               ];
             })}
+            <tr style={{ background: "rgba(255,255,255,0.02)" }}>
+              <td style={{ padding: "14px 10px", fontWeight: 700, color: "var(--text)", fontSize: 13 }} colSpan={3}>Total</td>
+              <td style={{ padding: "14px 10px", textAlign: "right", fontWeight: 700, color: "var(--text)" }}>{fmtAvaxETF(totHold)}</td>
+              <td style={{ padding: "14px 10px", textAlign: "right", fontWeight: 700, color: "var(--text)" }}>{totVal ? fmt(totVal) : "\u2014"}</td>
+              <td style={{ padding: "14px 10px", textAlign: "right", fontWeight: 700, color: "var(--text)" }}>{fmt(totAum)}</td>
+              <td colSpan={5}></td>
+            </tr>
           </tbody>
         </table>
       </div>
