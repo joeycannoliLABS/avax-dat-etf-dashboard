@@ -53,6 +53,23 @@ const DATS = [
 // Fallback mirror of /api/intl-etps. `holdingsSource` distinguishes published
 // token counts from estimates derived as AUM / live AVAX price.
 // staking: true w/ stakingPct null = stakes but does not disclose the ratio.
+// International (non-US) Avalanche ETPs / ETNs.
+//
+// HOW HOLDINGS ARE DETERMINED
+// These products price via a "coin entitlement": each unit represents a fixed
+// fraction of one AVAX, which is why NAV/share ($0.10-$1.89) is far below spot.
+//   AVAX held = sharesOutstanding x entitlement
+//   sharesOutstanding = aum / navPerShare
+//   entitlement = navPerShare / avaxPrice   (at the moment the figures were pulled)
+//
+// avaxHoldings below is a FIXED value computed at update time, never divided by
+// the live price at render. That matters: a live division would make reported
+// holdings fall when AVAX rallies, inventing creations/redemptions that never
+// happened. Entitlement drifts down slowly as the management fee accrues, and
+// up for staking products as rewards are reinvested.
+//
+// holdingsSource: "published" = issuer/on-chain token count.
+//                 "calculated" = derived from AUM / NAV / price at priceAtSnapshot.
 var INTL_ETPS_FALLBACK = [
   {
     id: "21shares-avax", name: "21Shares Avalanche Staking ETP", ticker: "AVAX",
@@ -61,7 +78,9 @@ var INTL_ETPS_FALLBACK = [
     aum: 21400000, aumUsd: 21400000, aumCurrency: "USD", fee: 2.50,
     staking: true, stakingPct: null,
     navPerShare: 1.89, navCurrency: "USD",
-    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-26",
+    sharesOutstanding: 11322751, entitlement: 0.176142, priceAtSnapshot: 10.73,
+    holdingsSource: "calculated", avaxHoldings: 1994408,
+    status: "Live", asOf: "2026-09-26",
     color: "#F59E0B", url: "https://www.21shares.com/en-eu/product/avax"
   },
   {
@@ -71,7 +90,9 @@ var INTL_ETPS_FALLBACK = [
     aum: 10040000, aumUsd: 10040000, aumCurrency: "USD", fee: 1.50,
     staking: false, stakingPct: null,
     navPerShare: 1.08, navCurrency: "USD",
-    holdingsSource: "published", avaxHoldings: 958583, status: "Live", asOf: "2026-09-26",
+    sharesOutstanding: 9296296, entitlement: 0.103115, priceAtSnapshot: 10.73,
+    holdingsSource: "published", avaxHoldings: 958583,
+    status: "Live", asOf: "2026-09-26",
     color: "#3B82F6", url: "https://www.vaneck.com/lu/en/investments/avalanche-etp/"
   },
   {
@@ -81,6 +102,7 @@ var INTL_ETPS_FALLBACK = [
     aum: 2070955, aumUsd: 2070955, aumCurrency: "USD", fee: 1.49,
     staking: false, stakingPct: null,
     navPerShare: 0.10, navCurrency: "USD",
+    sharesOutstanding: 20709550, entitlement: 0.009721, priceAtSnapshot: 10.73,
     holdingsSource: "published", avaxHoldings: 201310, backing: 100.29,
     status: "Live", asOf: "2026-09-26",
     color: "#10B981", url: "https://www.virtune.com/en/product/avalanche"
@@ -92,7 +114,9 @@ var INTL_ETPS_FALLBACK = [
     aum: 86000, aumUsd: 86000, aumCurrency: "USD", fee: 1.90,
     staking: false, stakingPct: null,
     navPerShare: 0.82, navCurrency: "EUR",
-    holdingsSource: "derived", avaxHoldings: null, status: "Live", asOf: "2026-09-26",
+    sharesOutstanding: 104878, entitlement: 0.076421, priceAtSnapshot: 10.73,
+    holdingsSource: "calculated", avaxHoldings: 8014,
+    status: "Live", asOf: "2026-09-26",
     color: "#A855F7", url: "https://valour.com/en/products/valour-avalanche-avax"
   }
 ];
@@ -132,12 +156,23 @@ function mergeIntlEtps(liveProducts) {
   });
 }
 
-// Resolve token counts: published figures win, otherwise derive from AUM / live price.
+// Resolve token counts.
+//
+// Holdings are the stored figure, fixed at update time - NOT divided by the live
+// price. Dividing live would make holdings drop whenever AVAX rallies, which would
+// read as redemptions that never occurred. Entitlement x shares is the real count,
+// and both only change when the issuer publishes new figures.
 function resolveIntlHoldings(etps, price) {
   return (etps || []).map(function(p) {
-    var derived = p.holdingsSource !== "published" && p.aumUsd && price ? p.aumUsd / price : null;
-    var holdings = p.holdingsSource === "published" ? p.avaxHoldings : derived;
-    return Object.assign({}, p, { holdings: holdings, isDerived: p.holdingsSource !== "published" });
+    var holdings = p.avaxHoldings || null;
+    // Fallback only if a stored count is missing entirely.
+    if (!holdings && p.sharesOutstanding && p.entitlement) {
+      holdings = p.sharesOutstanding * p.entitlement;
+    }
+    return Object.assign({}, p, {
+      holdings: holdings,
+      isDerived: p.holdingsSource !== "published"
+    });
   });
 }
 
@@ -276,7 +311,7 @@ var ETF_HISTORY = [
   { date: "Jun 2026", avax: 4912318, label: "Combined holdings surpass 4.9M AVAX" },
   { date: "Jul 2026", avax: 4898748, label: "Holdings steady near 4.9M AVAX" },
   { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
-  { date: "Sep 2026", avax: 5372052, intl: 3162316, label: "Inflows resume; international ETPs added to tracking" }
+  { date: "Sep 2026", avax: 5372052, intl: 3162315, label: "Inflows resume; international ETPs added to tracking" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal, compact, chartHeight }) {
@@ -413,7 +448,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
                   <td style={tdR}>
                     <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.holdings ? fmtAvax(p.holdings) + " AVAX" : "\u2014"}</span>
                     <div style={{ fontSize: 9, color: p.isDerived ? "#F59E0B" : "#10B981", marginTop: 2 }}>
-                      {p.isDerived ? "est. from AUM" : (p.backing ? p.backing.toFixed(2) + "% backed" : "published")}
+                      {p.isDerived ? "calculated" : (p.backing ? p.backing.toFixed(2) + "% backed" : "published")}
                     </div>
                   </td>
                   <td style={tdR}><span style={{ color: "var(--text)", fontWeight: 500 }}>{val ? fmt(val) : "\u2014"}</span></td>
@@ -430,6 +465,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
                     {p.navPerShare != null
                       ? <span style={{ color: "var(--text)", fontWeight: 500 }}>{p.navCurrency === "EUR" ? "\u20ac" : (p.navCurrency === "SEK" ? "kr" : "$")}{p.navPerShare.toFixed(2)}</span>
                       : <span style={{ color: "var(--muted)" }}>N/A</span>}
+                    {p.sharesOutstanding ? <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{fmtAvax(p.sharesOutstanding)} units</div> : null}
                   </td>
                   <td style={tdR}><span style={{ color: "var(--sub)" }}>{p.fee.toFixed(2)}%</span></td>
                   <td style={tdR}>
@@ -462,7 +498,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
       </div>
 
       <p style={{ fontSize: 11, color: "var(--muted)", margin: "12px 0 0", lineHeight: 1.5 }}>
-        <span style={{ color: "#F59E0B" }}>&#9679;</span> These issuers do not publish AVAX token counts. Those figures are estimated as AUM divided by the live AVAX price and move with price. Virtune&apos;s holdings are actual custody balances verified on-chain via Chainlink Proof of Reserve.
+        <span style={{ color: "#F59E0B" }}>&#9679;</span> These products price via a coin entitlement, where each unit represents a fraction of one AVAX, so NAV per share sits well below AVAX spot. Where an issuer does not publish a token count, holdings are calculated as units outstanding &times; entitlement (entitlement = NAV &divide; AVAX price at the time the figures were pulled) and held fixed until the next update, so they do not drift with price. VanEck and Virtune publish actual balances; Virtune&apos;s are verified on-chain via Chainlink Proof of Reserve.
       </p>
     </div>
   );
