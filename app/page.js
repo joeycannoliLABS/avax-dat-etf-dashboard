@@ -87,7 +87,7 @@ var INTL_ETPS_FALLBACK = [
   },
   {
     id: "valour-avax", name: "Valour Avalanche", ticker: "AVAX",
-    sponsor: "Valour / DeFi Technologies", exchange: "Nordic Growth Market", domicile: "Switzerland",
+    sponsor: "Valour", exchange: "Nordic Growth Market", domicile: "Switzerland",
     isin: "CH1114178788", inception: "2021-09-01",
     aum: 86000, aumUsd: 86000, aumCurrency: "USD", fee: 1.90,
     staking: false, stakingPct: 0,
@@ -359,6 +359,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
               <th style={thR}>NAV/Share</th>
               <th style={thR}>Expense Ratio</th>
               <th style={thR}>Status</th>
+              <th style={Object.assign({}, th, { width: 32 })}></th>
             </tr>
           </thead>
           <tbody>
@@ -399,6 +400,18 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
                   <td style={tdR}>
                     <span style={{ fontSize: 11, color: "#10B981", fontWeight: 600, border: "1px solid rgba(16,185,129,0.4)", padding: "2px 10px", borderRadius: 12 }}>{p.status}</span>
                   </td>
+                  <td style={Object.assign({}, td, { textAlign: "center", width: 32 })}>
+                    {p.url ? (
+                      <a href={p.url} target="_blank" rel="noopener noreferrer"
+                        style={{ color: "var(--dim)", transition: "color 0.15s", display: "inline-flex" }}
+                        onMouseEnter={function(ev) { ev.currentTarget.style.color = "var(--text)"; }}
+                        onMouseLeave={function(ev) { ev.currentTarget.style.color = "var(--dim)"; }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                      </a>
+                    ) : <span style={{ color: "var(--dim)", fontSize: 11 }}>&mdash;</span>}
+                  </td>
                 </tr>
               );
             })}
@@ -407,7 +420,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
               <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{totalHold ? fmtAvax(totalHold) + " AVAX" : "\u2014"}</td>
               <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{totalVal ? fmt(totalVal) : "\u2014"}</td>
               <td style={Object.assign({}, tdR, { borderBottom: "none", fontWeight: 700, color: "var(--text)" })}>{fmt(totalAum)}</td>
-              <td style={Object.assign({}, tdR, { borderBottom: "none" })} colSpan={4}></td>
+              <td style={Object.assign({}, tdR, { borderBottom: "none" })} colSpan={5}></td>
             </tr>
           </tbody>
         </table>
@@ -442,7 +455,7 @@ function ETFDonutChart({ etfs, price, circ }) {
   return (
     <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: 20, height: "100%" }}>
       <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", margin: "0 0 14px", letterSpacing: -0.3, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-        <span>ETF Holdings Breakdown <span style={{ fontSize: 10, fontWeight: 400, color: "var(--muted)" }}>Global</span></span>
+        <span>ETF Holdings Breakdown</span>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {price && <span style={{ fontSize: 12, fontWeight: 500, color: "var(--dim)" }}>&asymp; {fmt(total * price)}</span>}
           {circ && <span style={{ fontSize: 10, color: "#E84142", fontWeight: 600, background: "rgba(232,65,66,0.1)", padding: "2px 8px", borderRadius: 4 }}>{(total / circ * 100).toFixed(2)}% of supply</span>}
@@ -490,7 +503,7 @@ function ETFHoldingsTimeChart({ history, currentTotal, currentIntl, compact }) {
     data[data.length - 1] = Object.assign({}, data[data.length - 1], patch);
   }
   var max = Math.max.apply(null, data.map(function(d) { return d.avax + (d.intl || 0); })) * 1.1;
-  var chartH = compact ? 120 : 180;
+  var chartH = compact ? 258 : 180;
   var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
   var containerRef = useRef(null);
@@ -1380,7 +1393,7 @@ export default function Dashboard() {
               <div style={{ fontSize: 32, fontWeight: 700, color: "#E84142", letterSpacing: -0.5 }}>{fmtAvax(totalDATAvax)}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF AVAX Holdings <span style={{ fontSize: 9, opacity: 0.7 }}>GLOBAL</span></div>
+              <div style={{ fontSize: 11, color: "var(--muted)" }}>ETF AVAX Holdings</div>
               <div style={{ fontSize: 32, fontWeight: 700, color: "#E84142", letterSpacing: -0.5 }}>{fmtAvax(totalETFHoldings)}</div>
             </div>
             <div>
