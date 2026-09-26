@@ -279,13 +279,14 @@ var ETF_HISTORY = [
   { date: "Sep 2026", avax: 5372052, intl: 3162316, label: "Inflows resume; international ETPs added to tracking" }
 ];
 
-function HoldingsTimeChart({ history, currentTotal, compact }) {
+function HoldingsTimeChart({ history, currentTotal, compact, chartHeight }) {
   var data = history.map(function(h) { return h; });
   if (currentTotal && data.length > 0) {
     data[data.length - 1] = Object.assign({}, data[data.length - 1], { avax: currentTotal });
   }
   var max = Math.max.apply(null, data.map(function(d) { return d.avax; }));
-  var chartH = compact ? 258 : 180;
+  // Sized to match the sibling donut card, whose height depends on its legend row count.
+  var chartH = chartHeight || (compact ? 258 : 180);
   var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
   var containerRef = useRef(null);
@@ -528,7 +529,7 @@ function ETFDonutChart({ etfs, price, circ }) {
   );
 }
 
-function ETFHoldingsTimeChart({ history, currentTotal, currentIntl, compact }) {
+function ETFHoldingsTimeChart({ history, currentTotal, currentIntl, compact, chartHeight }) {
   var data = history.map(function(h) { return h; });
   if (data.length > 0 && (currentTotal || currentIntl)) {
     var patch = {};
@@ -537,7 +538,7 @@ function ETFHoldingsTimeChart({ history, currentTotal, currentIntl, compact }) {
     data[data.length - 1] = Object.assign({}, data[data.length - 1], patch);
   }
   var max = Math.max.apply(null, data.map(function(d) { return d.avax + (d.intl || 0); })) * 1.1;
-  var chartH = compact ? 258 : 180;
+  var chartH = chartHeight || (compact ? 258 : 180);
   var gutter = compact ? 42 : 50;
   var hoverS = useState(null), hovered = hoverS[0], setHovered = hoverS[1];
   var containerRef = useRef(null);
@@ -1346,13 +1347,13 @@ export default function Dashboard() {
             <HoldingsDonutChart dats={datsWithLive} price={price} circ={circ} />
           </div>
           <div style={{ flex: 1, minWidth: 300 }}>
-            <HoldingsTimeChart history={DAT_HISTORY} currentTotal={totalDATAvax} compact />
+            <HoldingsTimeChart history={DAT_HISTORY} currentTotal={totalDATAvax} compact chartHeight={92} />
           </div>
         </div>
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
 
-        <SectionHeader title="Exchange-Traded Funds" subtitle="Spot AVAX ETFs offering regulated exposure and staking rewards" />
+        <SectionHeader title="Exchange-Traded Funds (US)" subtitle="U.S.-listed spot AVAX ETFs offering regulated exposure and staking rewards" />
         <ETFTable etfs={ETFS} price={price} />
 
         {/* ── ETF donut + holdings over time side by side ── */}
