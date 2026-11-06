@@ -8,7 +8,7 @@ const DATS = [
     name: "AVAX One",
     ticker: "AVX",
     exchange: "NASDAQ",
-    avaxHoldings: 14222000,
+    avaxHoldings: 14274000,
     status: "Live",
     description: "AVAX One offers investors regulated access to Avalanche, one of the fastest-growing Layer 1 blockchain ecosystems. Combining the reliability of U.S. equity markets with the upside of next-gen finance, it\u2019s a modern strategy for a new financial era.",
     highlights: ["Acquired 9.37M AVAX for $110M (Nov 2025)","$40M share buyback authorized","~$600K staking rewards earned through Dec 2025","Expects ~180K AVAX staking rewards in Q1 2026","Treasury analytics dashboard at avax-one.com"],
@@ -50,10 +50,6 @@ const DATS = [
 ];
 
 // International (non-US) Avalanche ETPs / ETNs.
-// Fallback mirror of /api/intl-etps. `holdingsSource` distinguishes published
-// token counts from estimates derived as AUM / live AVAX price.
-// staking: true w/ stakingPct null = stakes but does not disclose the ratio.
-// International (non-US) Avalanche ETPs / ETNs.
 //
 // HOW HOLDINGS ARE DETERMINED
 // These products price via a "coin entitlement": each unit represents a fixed
@@ -68,95 +64,62 @@ const DATS = [
 // happened. Entitlement drifts down slowly as the management fee accrues, and
 // up for staking products as rewards are reinvested.
 //
+// staking: true with stakingPct null = stakes but does not disclose the ratio.
+// Updated by hand weekly; this file is the single source of truth.
 // holdingsSource: "published" = issuer/on-chain token count.
 //                 "calculated" = derived from AUM / NAV / price at priceAtSnapshot.
-var INTL_ETPS_FALLBACK = [
+var INTL_ETPS = [
   {
     id: "21shares-avax", name: "21Shares Avalanche Staking ETP", ticker: "AVAX",
     sponsor: "21Shares", exchange: "SIX / Xetra / Euronext", domicile: "Switzerland",
     isin: "CH1135202088", inception: "2021-11-18",
-    aum: 12644889, aumUsd: 12644889, aumCurrency: "USD", fee: 2.50,
+    aum: 11491618, aumUsd: 11491618, aumCurrency: "USD", fee: 2.50,
     staking: true, stakingPct: null,
-    navPerShare: 1.64, navCurrency: "USD",
-    sharesOutstanding: 7700000, entitlement: 0.180967, priceAtSnapshot: 9.07,
-    holdingsSource: "calculated", avaxHoldings: 1393447,
-    status: "Live", asOf: "2026-10-30",
+    navPerShare: 1.49, navCurrency: "USD",
+    sharesOutstanding: 7700000, entitlement: 0.180879, priceAtSnapshot: 8.25,
+    holdingsSource: "calculated", avaxHoldings: 1392769,
+    status: "Live", asOf: "2026-11-06",
     color: "#F59E0B", url: "https://www.21shares.com/en-eu/product/avax"
   },
   {
     id: "vaneck-vava", name: "VanEck Avalanche ETN", ticker: "VAVA",
     sponsor: "VanEck", exchange: "Xetra / Euronext", domicile: "Liechtenstein",
     isin: "DE000A3GV1T7", inception: "2021-12-08",
-    aum: 8590219, aumUsd: 8590219, aumCurrency: "USD", fee: 1.50,
+    aum: 8384062, aumUsd: 8384062, aumCurrency: "USD", fee: 1.50,
     staking: false, stakingPct: null,
-    navPerShare: 0.91, navCurrency: "USD",
-    sharesOutstanding: 9439801, entitlement: 0.102765, priceAtSnapshot: 8.86,
-    holdingsSource: "published", avaxHoldings: 970077,
-    status: "Live", asOf: "2026-10-30",
+    navPerShare: 0.89, navCurrency: "USD",
+    sharesOutstanding: 9420294, entitlement: 0.102948, priceAtSnapshot: 8.65,
+    holdingsSource: "published", avaxHoldings: 969798,
+    status: "Live", asOf: "2026-11-06",
     color: "#3B82F6", url: "https://www.vaneck.com/lu/en/investments/avalanche-etp/"
   },
   {
     id: "virtune-viravax", name: "Virtune Avalanche ETP", ticker: "VIRAVAX",
     sponsor: "Virtune", exchange: "Nasdaq Stockholm / Helsinki", domicile: "Sweden",
     isin: "SE0022050092", inception: "2024-07-04",
-    aum: 1837290, aumUsd: 1837290, aumCurrency: "USD", fee: 1.49,
+    aum: 1706787, aumUsd: 1706787, aumCurrency: "USD", fee: 1.49,
     staking: false, stakingPct: null,
-    navPerShare: 0.09, navCurrency: "USD",
+    navPerShare: 0.08, navCurrency: "USD",
     // Entitlement carried from the last Chainlink-verified balance
     // (201,310 / 20,709,550), decayed at the 1.49% fee, times new units out.
-    sharesOutstanding: 21250000, entitlement: 0.009709, priceAtSnapshot: 8.91,
-    holdingsSource: "calculated", avaxHoldings: 206321,
-    status: "Live", asOf: "2026-10-30",
+    sharesOutstanding: 21250000, entitlement: 0.009706, priceAtSnapshot: 8.28,
+    holdingsSource: "calculated", avaxHoldings: 206257,
+    status: "Live", asOf: "2026-11-06",
     color: "#10B981", url: "https://www.virtune.com/en/product/avalanche"
   },
   {
     id: "valour-avax", name: "Valour Avalanche", ticker: "AVAX",
     sponsor: "Valour", exchange: "Nordic Growth Market", domicile: "Switzerland",
     isin: "CH1114178788", inception: "2021-09-01",
-    aum: 65452, aumUsd: 65452, aumCurrency: "USD", fee: 1.90,
+    aum: 60932, aumUsd: 60932, aumCurrency: "USD", fee: 1.90,
     staking: false, stakingPct: null,
-    navPerShare: 0.73, navCurrency: "EUR",
-    sharesOutstanding: 80289, entitlement: 0.090275, priceAtSnapshot: 9.03,
-    holdingsSource: "calculated", avaxHoldings: 7248,
-    status: "Live", asOf: "2026-10-30",
+    navPerShare: 0.68, navCurrency: "EUR",
+    sharesOutstanding: 80289, entitlement: 0.090242, priceAtSnapshot: 8.41,
+    holdingsSource: "calculated", avaxHoldings: 7245,
+    status: "Live", asOf: "2026-11-06",
     color: "#A855F7", url: "https://valour.com/en/products/valour-avalanche-avax"
   }
 ];
-
-// Merge live API data over the local baseline.
-//
-// The local table above is AUTHORITATIVE for identity and disclosed figures
-// (name, ticker, sponsor, exchange, fee, NAV, staking, links, colors). The API
-// may only contribute genuinely live values: Virtune's on-chain reserve balance
-// and FX-converted AUM. This prevents a stale deployment of /api/intl-etps from
-// rewriting product names or overriding figures entered here.
-var INTL_LIVE_FIELDS = ["aum", "aumUsd", "aumCurrency", "fxRate"];
-
-function mergeIntlEtps(liveProducts) {
-  var byId = {};
-  (liveProducts || []).forEach(function(lp) { if (lp && lp.id) byId[lp.id] = lp; });
-
-  return INTL_ETPS_FALLBACK.map(function(base) {
-    var live = byId[base.id];
-    if (!live) return Object.assign({}, base);
-    var merged = Object.assign({}, base);
-
-    // Only accept live values that are actually present and numeric.
-    INTL_LIVE_FIELDS.forEach(function(f) {
-      if (typeof live[f] === "number" && live[f] > 0) merged[f] = live[f];
-      else if (f === "aumCurrency" && live[f]) merged[f] = live[f];
-    });
-
-    // Virtune: a verified on-chain reserve reading supersedes the stored count.
-    if (live.holdingsSource === "published" && typeof live.avaxHoldings === "number" && live.avaxHoldings > 0) {
-      merged.avaxHoldings = live.avaxHoldings;
-      merged.holdingsSource = "published";
-      if (typeof live.backing === "number") merged.backing = live.backing;
-      if (live.asOf) merged.asOf = live.asOf;
-    }
-    return merged;
-  });
-}
 
 // Resolve token counts.
 //
@@ -185,11 +148,11 @@ var ETFS_STATIC = [
     ticker: "GAVA",
     sponsor: "Grayscale",
     exchange: "NASDAQ",
-    aum: 7924941,
-    avaxHoldings: 896068,
+    aum: 7456044,
+    avaxHoldings: 894149,
     sponsorFee: 0.35,
-    stakingPct: 72.71,
-    navPerShare: 21.54,
+    stakingPct: 72.87,
+    navPerShare: 20.29,
     stakingMax: 85,
     status: "Live",
     description: "Converted from Grayscale Avalanche Trust to a spot staking ETF. Launched March 13, 2026 on NASDAQ. Allows staking up to 85% of AVAX holdings for yield generation.",
@@ -204,11 +167,11 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: 23576278,
-    avaxHoldings: 2670634,
+    aum: 22407919,
+    avaxHoldings: 2671148,
     sponsorFee: 0.34,
     stakingPct: 63,
-    navPerShare: 24.06,
+    navPerShare: 23.87,
     stakingMax: 70,
     status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
@@ -302,7 +265,8 @@ var DAT_HISTORY = [
   { date: "Jul 2026", avax: 29561000, label: "DeFi Tech increases to 500K AVAX" },
   { date: "Aug 2026", avax: 29902000, label: "Holdings steady near 29.9M" },
   { date: "Sep 2026", avax: 29880000, label: "Holdings steady near 29.9M" },
-  { date: "Oct 2026", avax: 27939628, label: "AVAT sells 2.08M AVAX to reduce debt" }
+  { date: "Oct 2026", avax: 27939628, label: "AVAT sells 2.08M AVAX to reduce debt" },
+  { date: "Nov 2026", avax: 27991628, label: "AVAX One continues accumulating" }
 ];
 
 var ETF_HISTORY = [
@@ -315,7 +279,8 @@ var ETF_HISTORY = [
   { date: "Jul 2026", avax: 4898748, label: "Holdings steady near 4.9M AVAX" },
   { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
   { date: "Sep 2026", avax: 5372052, intl: 3162315, label: "International ETPs added to tracking" },
-  { date: "Oct 2026", avax: 5641375, intl: 2577093, label: "U.S. steady; 21Shares redeems 1.1M units" }
+  { date: "Oct 2026", avax: 5641375, intl: 2577093, label: "U.S. steady; 21Shares redeems 1.1M units" },
+  { date: "Nov 2026", avax: 5588588, intl: 2576069, label: "VAVX outflows; international flat" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal, compact, chartHeight }) {
@@ -403,7 +368,7 @@ function HoldingsTimeChart({ history, currentTotal, compact, chartHeight }) {
   );
 }
 
-function IntlETPTable({ rows, price, circ, fxLive }) {
+function IntlETPTable({ rows, price, circ }) {
   var totalAum = rows.reduce(function(s2, p) { return s2 + (p.aumUsd || 0); }, 0);
   var totalHold = rows.reduce(function(s2, p) { return s2 + (p.holdings || 0); }, 0);
   var totalVal = totalHold && price ? totalHold * price : null;
@@ -458,7 +423,7 @@ function IntlETPTable({ rows, price, circ, fxLive }) {
                   <td style={tdR}><span style={{ color: "var(--text)", fontWeight: 500 }}>{val ? fmt(val) : "\u2014"}</span></td>
                   <td style={tdR}>
                     <span style={{ color: "var(--text)", fontWeight: 500 }}>{fmt(p.aumUsd)}</span>
-                    {p.aumCurrency !== "USD" && <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{p.aumCurrency === "EUR" ? "\u20ac" : ""}{(p.aum / 1e6).toFixed(2)}M {p.aumCurrency}{fxLive ? "" : " \u00b7 est. FX"}</div>}
+                    {p.aumCurrency !== "USD" && <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 2 }}>{p.aumCurrency === "EUR" ? "\u20ac" : ""}{(p.aum / 1e6).toFixed(2)}M {p.aumCurrency}</div>}
                   </td>
                   <td style={tdR}>
                     {p.stakingPct != null
@@ -803,9 +768,9 @@ function EntityCard({ e, price, circ, isOpen, onToggle }) {
 }
 
 var RWA_MANUAL = {
-  distributed: 1589117135,
+  distributed: 1453222878,
   represented: 11403501297,
-  stablecoinMcap: 1300000000
+  stablecoinMcap: 1097000000
 };
 var RWA_WEEKLY = [
   { date: "Aug 2024", distributed: 120000000, represented: 180000000 },
@@ -834,13 +799,14 @@ var RWA_WEEKLY = [
   { date: "Jul 2026", distributed: 1589680745, represented: 678646842 },
   { date: "Aug 2026", distributed: 1684315565, represented: 11404881341 },
   { date: "Sep 2026", distributed: 1821967032, represented: 11404381325 },
-  { date: "Oct 2026", distributed: 1589117135, represented: 11403501297 }
+  { date: "Oct 2026", distributed: 1589117135, represented: 11403501297 },
+  { date: "Nov 2026", distributed: 1453222878, represented: 11403501297 }
 ];
 
 var RWA_SUMMARY = {
   distributed: RWA_MANUAL.distributed,
   represented: RWA_MANUAL.represented,
-  rwaCount: 1357,
+  rwaCount: 1365,
   holders: 8036,
   stablecoinMcap: RWA_MANUAL.stablecoinMcap,
   source: "RWA.xyz",
@@ -1174,12 +1140,11 @@ export default function Dashboard() {
   var ss = useState(null), selected = ss[0], setSelected = ss[1];
   var us = useState(null), lastUpdate = us[0], setLastUpdate = us[1];
   var crs = useState(null), circ = crs[0], setCirc = crs[1];
-  var avxS = useState(14222000), avxHoldings = avxS[0], setAvxHoldings = avxS[1];
+  var avxS = useState(14274000), avxHoldings = avxS[0], setAvxHoldings = avxS[1];
   var darkS = useState(true), isDark = darkS[0], setIsDark = darkS[1];
   var newsS = useState([]), liveNews = newsS[0], setLiveNews = newsS[1];
   var vavxS = useState(null), vavxData = vavxS[0], setVavxData = vavxS[1];
   var rwaS = useState(null), rwaLive = rwaS[0], setRwaLive = rwaS[1];
-  var intlS = useState(null), intlLive = intlS[0], setIntlLive = intlS[1];
   var dashRef = useRef(null);
 
   useEffect(function() {
@@ -1214,7 +1179,6 @@ export default function Dashboard() {
   useEffect(function() {
     function fetchRwa() {
       fetch("/api/avax-rwa").then(function(r) { return r.json(); }).then(function(d) { setRwaLive(d); }).catch(function() {});
-      fetch("/api/intl-etps").then(function(r) { return r.json(); }).then(function(d) { if (d && d.products) setIntlLive(d); }).catch(function() {});
     }
     fetchRwa();
     var i = setInterval(fetchRwa, 30 * 60 * 1000);
@@ -1235,12 +1199,12 @@ export default function Dashboard() {
     ticker: "VAVX",
     sponsor: "VanEck",
     exchange: "NASDAQ",
-    aum: 18321440,
-    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 2074673,
+    aum: 16976317,
+    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 2023291,
     sponsorFee: 0.20,
     feeWaiver: null,
-    stakingPct: 80.03,
-    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 18.32,
+    stakingPct: 82.12,
+    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 17.41,
     stakingMax: 70,
     status: "Live",
     description: "First U.S.-listed spot AVAX ETF. Offers price exposure plus potential staking rewards via Coinbase Crypto Services. Launched January 26, 2026.",
@@ -1261,9 +1225,7 @@ export default function Dashboard() {
 
   var totalDATAvax = datsWithLive.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
   var totalUSETFHoldings = ETFS.reduce(function(s, e) { return s + (e.avaxHoldings || 0); }, 0);
-  // Local baseline wins on identity; API may only supply live AUM / reserves.
-  var intlEtpsRaw = mergeIntlEtps(intlLive && intlLive.products ? intlLive.products : null);
-  var intlEtps = resolveIntlHoldings(intlEtpsRaw, price);
+  var intlEtps = resolveIntlHoldings(INTL_ETPS, price);
   var totalIntlHoldings = intlEtps.reduce(function(s, p2) { return s + (p2.holdings || 0); }, 0);
   // Banner + donut + chart all report the global figure (U.S. + international).
   var totalETFHoldings = totalUSETFHoldings + totalIntlHoldings;
@@ -1414,7 +1376,6 @@ export default function Dashboard() {
           rows={intlEtps}
           price={price}
           circ={circ}
-          fxLive={intlLive ? intlLive.eurUsdLive : false}
         />
 
         <div style={{ height: 1, background: "var(--border)", margin: "24px 0 40px" }} />
