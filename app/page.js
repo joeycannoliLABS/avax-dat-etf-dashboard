@@ -22,7 +22,7 @@ const DATS = [
     name: "Avalanche Treasury Co.",
     ticker: "AVAT",
     exchange: "NASDAQ (Q1 '26)",
-    avaxHoldings: 13217628,
+    avaxHoldings: 13310000,
     aum: 460000000,
     status: "Live",
     description: "The premiere way to get regulated AVAX exposure. We\u2019re the institutional growth engine for the Avalanche ecosystem, with an exclusive relationship with Avalanche itself. Funding builders. Accelerating technologies. Bringing institutions to AVAX.",
@@ -73,50 +73,50 @@ var INTL_ETPS = [
     id: "21shares-avax", name: "21Shares Avalanche Staking ETP", ticker: "AVAX",
     sponsor: "21Shares", exchange: "SIX / Xetra / Euronext", domicile: "Switzerland",
     isin: "CH1135202088", inception: "2021-11-18",
-    aum: 11491618, aumUsd: 11491618, aumCurrency: "USD", fee: 2.50,
+    aum: 11739685, aumUsd: 11739685, aumCurrency: "USD", fee: 2.50,
     staking: true, stakingPct: null,
-    navPerShare: 1.49, navCurrency: "USD",
-    sharesOutstanding: 7700000, entitlement: 0.180879, priceAtSnapshot: 8.25,
-    holdingsSource: "calculated", avaxHoldings: 1392769,
-    status: "Live", asOf: "2026-11-06",
+    navPerShare: 1.52, navCurrency: "USD",
+    sharesOutstanding: 7700000, entitlement: 0.180791, priceAtSnapshot: 8.43,
+    holdingsSource: "calculated", avaxHoldings: 1392092,
+    status: "Live", asOf: "2026-11-13",
     color: "#F59E0B", url: "https://www.21shares.com/en-eu/product/avax"
   },
   {
     id: "vaneck-vava", name: "VanEck Avalanche ETN", ticker: "VAVA",
     sponsor: "VanEck", exchange: "Xetra / Euronext", domicile: "Liechtenstein",
     isin: "DE000A3GV1T7", inception: "2021-12-08",
-    aum: 8384062, aumUsd: 8384062, aumCurrency: "USD", fee: 1.50,
+    aum: 7980983, aumUsd: 7980983, aumCurrency: "USD", fee: 1.50,
     staking: false, stakingPct: null,
-    navPerShare: 0.89, navCurrency: "USD",
-    sharesOutstanding: 9420294, entitlement: 0.102948, priceAtSnapshot: 8.65,
-    holdingsSource: "published", avaxHoldings: 969798,
-    status: "Live", asOf: "2026-11-06",
+    navPerShare: 0.85, navCurrency: "USD",
+    sharesOutstanding: 9389391, entitlement: 0.102328, priceAtSnapshot: 8.31,
+    holdingsSource: "published", avaxHoldings: 960798,
+    status: "Live", asOf: "2026-11-13",
     color: "#3B82F6", url: "https://www.vaneck.com/lu/en/investments/avalanche-etp/"
   },
   {
     id: "virtune-viravax", name: "Virtune Avalanche ETP", ticker: "VIRAVAX",
     sponsor: "Virtune", exchange: "Nasdaq Stockholm / Helsinki", domicile: "Sweden",
     isin: "SE0022050092", inception: "2024-07-04",
-    aum: 1706787, aumUsd: 1706787, aumCurrency: "USD", fee: 1.49,
+    aum: 1704853, aumUsd: 1704853, aumCurrency: "USD", fee: 1.49,
     staking: false, stakingPct: null,
     navPerShare: 0.08, navCurrency: "USD",
     // Entitlement carried from the last Chainlink-verified balance
     // (201,310 / 20,709,550), decayed at the 1.49% fee, times new units out.
-    sharesOutstanding: 21250000, entitlement: 0.009706, priceAtSnapshot: 8.28,
-    holdingsSource: "calculated", avaxHoldings: 206257,
-    status: "Live", asOf: "2026-11-06",
+    sharesOutstanding: 21250000, entitlement: 0.009703, priceAtSnapshot: 8.27,
+    holdingsSource: "calculated", avaxHoldings: 206193,
+    status: "Live", asOf: "2026-11-13",
     color: "#10B981", url: "https://www.virtune.com/en/product/avalanche"
   },
   {
     id: "valour-avax", name: "Valour Avalanche", ticker: "AVAX",
     sponsor: "Valour", exchange: "Nordic Growth Market", domicile: "Switzerland",
     isin: "CH1114178788", inception: "2021-09-01",
-    aum: 60932, aumUsd: 60932, aumCurrency: "USD", fee: 1.90,
+    aum: 60852, aumUsd: 60852, aumCurrency: "USD", fee: 1.90,
     staking: false, stakingPct: null,
-    navPerShare: 0.68, navCurrency: "EUR",
-    sharesOutstanding: 80289, entitlement: 0.090242, priceAtSnapshot: 8.41,
-    holdingsSource: "calculated", avaxHoldings: 7245,
-    status: "Live", asOf: "2026-11-06",
+    navPerShare: 0.69, navCurrency: "EUR",
+    sharesOutstanding: 80289, entitlement: 0.090209, priceAtSnapshot: 8.40,
+    holdingsSource: "calculated", avaxHoldings: 7243,
+    status: "Live", asOf: "2026-11-13",
     color: "#A855F7", url: "https://valour.com/en/products/valour-avalanche-avax"
   }
 ];
@@ -148,11 +148,11 @@ var ETFS_STATIC = [
     ticker: "GAVA",
     sponsor: "Grayscale",
     exchange: "NASDAQ",
-    aum: 7456044,
-    avaxHoldings: 894149,
+    aum: 7053575,
+    avaxHoldings: 846499,
     sponsorFee: 0.35,
-    stakingPct: 72.87,
-    navPerShare: 20.29,
+    stakingPct: 76.57,
+    navPerShare: 20.30,
     stakingMax: 85,
     status: "Live",
     description: "Converted from Grayscale Avalanche Trust to a spot staking ETF. Launched March 13, 2026 on NASDAQ. Allows staking up to 85% of AVAX holdings for yield generation.",
@@ -167,11 +167,11 @@ var ETFS_STATIC = [
     ticker: "BAVA",
     sponsor: "Bitwise",
     exchange: "NYSE Arca (pending)",
-    aum: 22407919,
-    avaxHoldings: 2671148,
+    aum: 22488919,
+    avaxHoldings: 2699804,
     sponsorFee: 0.34,
-    stakingPct: 63,
-    navPerShare: 23.87,
+    stakingPct: 64,
+    navPerShare: 22.72,
     stakingMax: 70,
     status: "Live",
     description: "Filed amended S-1 Nov 2025. First U.S. ETF proposal to include staking at launch. Plans to stake up to 70% of holdings.",
@@ -266,7 +266,7 @@ var DAT_HISTORY = [
   { date: "Aug 2026", avax: 29902000, label: "Holdings steady near 29.9M" },
   { date: "Sep 2026", avax: 29880000, label: "Holdings steady near 29.9M" },
   { date: "Oct 2026", avax: 27939628, label: "AVAT sells 2.08M AVAX to reduce debt" },
-  { date: "Nov 2026", avax: 27991628, label: "AVAX One continues accumulating" }
+  { date: "Nov 2026", avax: 28084000, label: "AVAT holdings rebuild via staking" }
 ];
 
 var ETF_HISTORY = [
@@ -280,7 +280,7 @@ var ETF_HISTORY = [
   { date: "Aug 2026", avax: 5085610, label: "Holdings plateau near 5.09M" },
   { date: "Sep 2026", avax: 5372052, intl: 3162315, label: "International ETPs added to tracking" },
   { date: "Oct 2026", avax: 5641375, intl: 2577093, label: "U.S. steady; 21Shares redeems 1.1M units" },
-  { date: "Nov 2026", avax: 5588588, intl: 2576069, label: "VAVX outflows; international flat" }
+  { date: "Nov 2026", avax: 5518204, intl: 2566326, label: "VAVX and GAVA outflows; BAVA adds" }
 ];
 
 function HoldingsTimeChart({ history, currentTotal, compact, chartHeight }) {
@@ -768,9 +768,9 @@ function EntityCard({ e, price, circ, isOpen, onToggle }) {
 }
 
 var RWA_MANUAL = {
-  distributed: 1453222878,
+  distributed: 1410937257,
   represented: 11403501297,
-  stablecoinMcap: 1097000000
+  stablecoinMcap: 785480000
 };
 var RWA_WEEKLY = [
   { date: "Aug 2024", distributed: 120000000, represented: 180000000 },
@@ -800,7 +800,7 @@ var RWA_WEEKLY = [
   { date: "Aug 2026", distributed: 1684315565, represented: 11404881341 },
   { date: "Sep 2026", distributed: 1821967032, represented: 11404381325 },
   { date: "Oct 2026", distributed: 1589117135, represented: 11403501297 },
-  { date: "Nov 2026", distributed: 1453222878, represented: 11403501297 }
+  { date: "Nov 2026", distributed: 1410937257, represented: 11403501297 }
 ];
 
 var RWA_SUMMARY = {
@@ -1199,12 +1199,12 @@ export default function Dashboard() {
     ticker: "VAVX",
     sponsor: "VanEck",
     exchange: "NASDAQ",
-    aum: 16976317,
-    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 2023291,
+    aum: 16427711,
+    avaxHoldings: vavxData && vavxData.avaxHoldings ? vavxData.avaxHoldings : 1971901,
     sponsorFee: 0.20,
     feeWaiver: null,
-    stakingPct: 82.12,
-    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 17.41,
+    stakingPct: 80,
+    navPerShare: vavxData && vavxData.navPrice ? vavxData.navPrice : 17.29,
     stakingMax: 70,
     status: "Live",
     description: "First U.S.-listed spot AVAX ETF. Offers price exposure plus potential staking rewards via Coinbase Crypto Services. Launched January 26, 2026.",
